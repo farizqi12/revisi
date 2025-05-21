@@ -150,6 +150,11 @@
                             <i class="fas fa-calendar-check me-1"></i> Pantau Absen
                         </a>
                     </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fa-solid fa-location-crosshairs"></i> Atur Lokasi Absen
+                        </a>
+                    </li>
                 </ul>
                 <div class="d-flex">
                     <form method="POST" action="/logout">

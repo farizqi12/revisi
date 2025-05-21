@@ -9,4 +9,4 @@ Route::post('/logout', [App\Http\Controllers\LoginController::class, 'logout'])-
 
 Route::get('/dashboard-guru', [App\Http\Controllers\LoginController::class, 'dashboardGuru'])->name('dashboard')->middleware('only.guru');
 
-Route::get('/user-manage', [App\Http\Controllers\ManageUser::class, 'show'])->name('usermanage');
+Route::get('/user-manage', [App\Http\Controllers\ManageUser::class, 'show'])->name('usermanage')->middleware('only.kepala.sekolah');
