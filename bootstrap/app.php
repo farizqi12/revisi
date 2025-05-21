@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Registrasi middleware
         $middleware->alias([
             'only.kepala.sekolah' => \App\Http\Middleware\OnlyKepalaSekolah::class,
+            'only.guru' => \App\Http\Middleware\OnlyGuru::class,
             ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
