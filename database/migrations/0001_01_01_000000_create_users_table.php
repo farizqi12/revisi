@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id(); // Sama dengan bigIncrements('id') tapi lebih modern
             $table->string('name');
-            $table->string('username')->unique();
+            $table->string('username')->unique()->default(''); // Dengan nilai default
             $table->string('password');
             $table->enum('role', ['kepala sekolah', 'guru', 'murid'])->default('guru'); // Gunakan enum untuk role yang fixed
             $table->rememberToken(); // Untuk fitur remember me

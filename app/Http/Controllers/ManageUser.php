@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class ManageUser extends Controller
 {
@@ -14,19 +15,17 @@ class ManageUser extends Controller
      */
     public function show()
     {
-        return view('user-manage');
+        $users = User::all();
+        return view('user-manage', compact('users'));
     }
 
-   
-    /**
-     * Menyimpan user baru ke database
-     */public function create(Request $request)
+    public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role'=> 'required|string|in:kepala sekolah,guru,siswa',
+            'role' => 'required|string|in:kepala sekolah,guru,murid', // Diubah dari 'siswa' ke 'murid'
         ]);
 
         if ($validator->fails()) {
@@ -42,16 +41,14 @@ class ManageUser extends Controller
 
         return redirect()->back()->with('success', 'User berhasil ditambahkan.');
     }
-    /**
-     * Menampilkan form edit user
-     */
+
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,username,' . $request->id,
-            'password' => 'required|string|min:8|confirmed',
-            'role'=> 'required|string|in:kepala sekolah,guru,siswa',
+            'password' => 'nullable|string|min:8|confirmed', // Password dibuat nullable agar tidak wajib diupdate
+            'role' => 'required|string|in:kepala sekolah,guru,murid', // Diubah dari 'siswa' ke 'murid'
         ]);
 
         if ($validator->fails()) {
@@ -65,21 +62,50 @@ class ManageUser extends Controller
 
         $user->name = $request->name;
         $user->username = $request->username;
-        $user->password = Hash::make($request->password);
+        $user->role = $request->role;
+
+        // Update password hanya jika diisi
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
         $user->save();
 
         return redirect()->back()->with('success', 'User berhasil diperbarui.');
     }
-    /**
-     * Menghapus user
-     */public function destroy(Request $request){
+
+    public function delete(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:users,id'
+        ]);
+
         $user = User::find($request->id);
         if (!$user) {
             return redirect()->back()->with('error', 'User tidak ditemukan.');
         }
 
+        // Cek jika user mencoba menghapus diri sendiri
+        if (Auth::id() === $user->id) {
+            return redirect()->back()->with('error', 'Tidak dapat menghapus akun sendiri.');
+        }
+
         $user->delete();
 
-        return redirect()->back()->with('success', 'User berhasil dihapus.');
+        return redirect()->back()->with('success', 'User berhasil dihapus (soft delete).');
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+
+        $users = User::when($query, function ($q) use ($query) {
+            return $q->where('name', 'LIKE', "%{$query}%")
+                ->orWhere('username', 'LIKE', "%{$query}%")
+                ->orWhere('role', 'LIKE', "%{$query}%");
+        })
+            ->get();
+
+        return view('user-manage', compact('users'));
     }
 }

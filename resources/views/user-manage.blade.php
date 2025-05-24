@@ -161,13 +161,18 @@
             background-color: rgba(102, 126, 234, 0.1);
         }
 
-        .badge-admin {
+        .badge-kepala-sekolah {
             background-color: #764ba2;
             color: white;
         }
 
-        .badge-user {
+        .badge-guru {
             background-color: #667eea;
+            color: white;
+        }
+
+        .badge-murid {
+            background-color: #4CAF50;
             color: white;
         }
 
@@ -198,6 +203,24 @@
         }
 
         .modal-title {
+            font-weight: 600;
+        }
+
+        /* Loading Modal */
+        .loading-modal-content {
+            background: transparent;
+            border: none;
+        }
+        
+        .loading-spinner {
+            color: var(--primary-light);
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        .loading-text {
+            margin-top: 1rem;
+            color: var(--primary-dark);
             font-weight: 600;
         }
 
@@ -250,7 +273,7 @@
                     </li>
                 </ul>
                 <div class="d-flex">
-                    <form method="POST" action="/logout">
+                    <form method="POST" action="/logout" id="logoutForm">
                         @csrf
                         <button type="submit" class="btn btn-logout">
                             <i class="fas fa-sign-out-alt me-1"></i> Logout
@@ -263,6 +286,20 @@
 
     <!-- Main Content -->
     <div class="main-container animate__animated animate__fadeIn">
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         <div class="card">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="card-title mb-0">
@@ -273,10 +310,12 @@
                 </button>
             </div>
 
-            <!-- Search Box -->
             <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" class="form-control" placeholder="Cari pengguna..." id="searchInput">
+                <form method="GET" action="{{ route('users.search') }}" id="searchForm">
+                    <input type="text" class="form-control" placeholder="Cari pengguna..." id="searchInput"
+                        name="query" value="{{ request('query') }}">
+                </form>
             </div>
 
             <!-- Users Table -->
@@ -286,98 +325,47 @@
                         <tr>
                             <th>#</th>
                             <th>Nama</th>
-                            <th>Email</th>
+                            <th>Username</th>
                             <th>Role</th>
                             <th>Tanggal Daftar</th>
+                            <th>Tanggal Diubah</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Admin Utama</td>
-                            <td>admin@example.com</td>
-                            <td><span class="badge badge-admin">Admin</span></td>
-                            <td>12 Jan 2023</td>
-                            <td>
-                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                    data-bs-target="#editUserModal">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
-                                    data-bs-target="#deleteUserModal">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>John Doe</td>
-                            <td>john@example.com</td>
-                            <td><span class="badge badge-user">User</span></td>
-                            <td>15 Feb 2023</td>
-                            <td>
-                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                    data-bs-target="#editUserModal">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
-                                    data-bs-target="#deleteUserModal">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Jane Smith</td>
-                            <td>jane@example.com</td>
-                            <td><span class="badge badge-user">User</span></td>
-                            <td>20 Mar 2023</td>
-                            <td>
-                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                    data-bs-target="#editUserModal">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
-                                    data-bs-target="#deleteUserModal">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>Robert Johnson</td>
-                            <td>robert@example.com</td>
-                            <td><span class="badge badge-admin">Admin</span></td>
-                            <td>5 Apr 2023</td>
-                            <td>
-                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                    data-bs-target="#editUserModal">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
-                                    data-bs-target="#deleteUserModal">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>5</td>
-                            <td>Sarah Williams</td>
-                            <td>sarah@example.com</td>
-                            <td><span class="badge badge-user">User</span></td>
-                            <td>10 Mei 2023</td>
-                            <td>
-                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                    data-bs-target="#editUserModal">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
-                                    data-bs-target="#deleteUserModal">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
+                        @forelse ($users as $index => $user)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $user->name }}</td>
+                                <td>{{ $user->username }}</td>
+                                <td>
+                                    @if ($user->role == 'kepala sekolah')
+                                        <span class="badge badge-kepala-sekolah">Kepala Sekolah</span>
+                                    @elseif($user->role == 'guru')
+                                        <span class="badge badge-guru">Guru</span>
+                                    @else
+                                        <span class="badge badge-murid">Murid</span>
+                                    @endif
+                                </td>
+                                <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>
+                                <td>{{ $user->updated_at->format('d/m/Y H:i') }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary edit-user" data-id="{{ $user->id }}"
+                                        data-name="{{ $user->name }}" data-username="{{ $user->username }}"
+                                        data-role="{{ $user->role }}" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger delete-user" data-id="{{ $user->id }}"
+                                        data-name="{{ $user->name }}" title="Hapus">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center">Tidak ada data yang ditemukan</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -396,34 +384,41 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <form>
+                <form method="POST" action="{{ route('users.create') }}" id="addUserForm">
+                    @csrf
+                    <div class="modal-body">
                         <div class="mb-3">
                             <label for="name" class="form-label">Nama Lengkap</label>
-                            <input type="text" class="form-control" id="name" required>
+                            <input type="text" class="form-control" id="name" name="name" required>
                         </div>
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" required>
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" required>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
+                            <input type="password" class="form-control" id="password_confirmation"
+                                name="password_confirmation" required>
                         </div>
                         <div class="mb-3">
                             <label for="role" class="form-label">Role</label>
-                            <select class="form-select" id="role" required>
+                            <select class="form-select" id="role" name="role" required>
                                 <option value="">Pilih Role</option>
-                                <option value="admin">Admin</option>
-                                <option value="user">User</option>
+                                <option value="kepala sekolah">Kepala Sekolah</option>
+                                <option value="guru">Guru</option>
+                                <option value="murid">Murid</option>
                             </select>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-primary">Simpan</button>
-                </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary" id="addUserSubmit">Simpan</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -440,35 +435,42 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <form>
+                <form method="POST" action="{{ route('users.update') }}" id="editUserForm">
+                    @csrf
+                    <input type="hidden" name="id" id="editId">
+                    <div class="modal-body">
                         <div class="mb-3">
                             <label for="editName" class="form-label">Nama Lengkap</label>
-                            <input type="text" class="form-control" id="editName" value="John Doe" required>
+                            <input type="text" class="form-control" id="editName" name="name" required>
                         </div>
                         <div class="mb-3">
-                            <label for="editEmail" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="editEmail" value="john@example.com"
-                                required>
+                            <label for="editUsername" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="editUsername" name="username" required>
                         </div>
                         <div class="mb-3">
                             <label for="editPassword" class="form-label">Password (Biarkan kosong jika tidak ingin
                                 mengubah)</label>
-                            <input type="password" class="form-control" id="editPassword">
+                            <input type="password" class="form-control" id="editPassword" name="password">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPasswordConfirmation" class="form-label">Konfirmasi Password</label>
+                            <input type="password" class="form-control" id="editPasswordConfirmation"
+                                name="password_confirmation">
                         </div>
                         <div class="mb-3">
                             <label for="editRole" class="form-label">Role</label>
-                            <select class="form-select" id="editRole" required>
-                                <option value="user" selected>User</option>
-                                <option value="admin">Admin</option>
+                            <select class="form-select" id="editRole" name="role" required>
+                                <option value="kepala sekolah">Kepala Sekolah</option>
+                                <option value="guru">Guru</option>
+                                <option value="murid">Murid</option>
                             </select>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-primary">Simpan Perubahan</button>
-                </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary" id="editUserSubmit">Simpan Perubahan</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -485,13 +487,32 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <p>Apakah Anda yakin ingin menghapus pengguna <strong>John Doe</strong>?</p>
-                    <p class="text-muted">Aksi ini tidak dapat dibatalkan.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-danger">Hapus</button>
+                <form method="POST" action="{{ route('users.delete') }}" id="deleteUserForm">
+                    @csrf
+                    <input type="hidden" name="id" id="deleteId">
+                    <div class="modal-body">
+                        <p>Apakah Anda yakin ingin menghapus pengguna <strong id="deleteUserName"></strong>?</p>
+                        <p class="text-muted">Aksi ini tidak dapat dibatalkan.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-danger" id="deleteUserSubmit">Hapus</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+        data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 loading-modal-content">
+                <div class="modal-body text-center p-5">
+                    <div class="spinner-border loading-spinner" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h5 class="mt-3 loading-text">Memproses...</h5>
                 </div>
             </div>
         </div>
@@ -500,8 +521,23 @@
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Animasi saat elemen muncul di viewport
+        // Inisialisasi modal loading
+        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+        
+        // Fungsi untuk menampilkan loading modal dengan pesan tertentu
+        function showLoading(message = 'Memproses...') {
+            document.querySelector('.loading-text').textContent = message;
+            loadingModal.show();
+        }
+        
+        // Fungsi untuk menyembunyikan loading modal
+        function hideLoading() {
+            loadingModal.hide();
+        }
+
+        // Event listener untuk semua form yang membutuhkan loading
         document.addEventListener('DOMContentLoaded', function() {
+            // Animasi saat elemen muncul di viewport
             const animateElements = document.querySelectorAll('.animate__animated');
 
             const observer = new IntersectionObserver((entries) => {
@@ -521,22 +557,84 @@
             });
 
             // Search functionality
+            const searchForm = document.getElementById('searchForm');
             const searchInput = document.getElementById('searchInput');
             const tableRows = document.querySelectorAll('tbody tr');
 
+            // Submit form saat mengetik (dengan delay)
+            let searchTimer;
             searchInput.addEventListener('keyup', function() {
-                const searchTerm = this.value.toLowerCase();
+                clearTimeout(searchTimer);
+                showLoading('Mencari pengguna...');
+                searchTimer = setTimeout(() => {
+                    searchForm.submit();
+                }, 500); // Delay 500ms setelah berhenti mengetik
+            });
 
-                tableRows.forEach(row => {
-                    const name = row.cells[1].textContent.toLowerCase();
-                    const email = row.cells[2].textContent.toLowerCase();
+            // Form tambah pengguna
+            const addUserForm = document.getElementById('addUserForm');
+            addUserForm.addEventListener('submit', function() {
+                showLoading('Menambahkan pengguna baru...');
+            });
 
-                    if (name.includes(searchTerm) || email.includes(searchTerm)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
+            // Form edit pengguna
+            const editUserForm = document.getElementById('editUserForm');
+            editUserForm.addEventListener('submit', function() {
+                showLoading('Menyimpan perubahan pengguna...');
+            });
+
+            // Form hapus pengguna
+            const deleteUserForm = document.getElementById('deleteUserForm');
+            deleteUserForm.addEventListener('submit', function() {
+                showLoading('Menghapus pengguna...');
+            });
+
+            // Form logout
+            const logoutForm = document.getElementById('logoutForm');
+            logoutForm.addEventListener('submit', function() {
+                showLoading('Memproses logout...');
+            });
+
+            // Edit User Modal
+            const editButtons = document.querySelectorAll('.edit-user');
+            editButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const name = this.getAttribute('data-name');
+                    const username = this.getAttribute('data-username');
+                    const role = this.getAttribute('data-role');
+
+                    document.getElementById('editId').value = id;
+                    document.getElementById('editName').value = name;
+                    document.getElementById('editUsername').value = username;
+                    document.getElementById('editRole').value = role;
+
+                    const editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+                    editModal.show();
                 });
+            });
+
+            // Delete User Modal
+            const deleteButtons = document.querySelectorAll('.delete-user');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const name = this.getAttribute('data-name');
+
+                    document.getElementById('deleteId').value = id;
+                    document.getElementById('deleteUserName').textContent = name;
+
+                    const deleteModal = new bootstrap.Modal(document.getElementById('deleteUserModal'));
+                    deleteModal.show();
+                });
+            });
+
+            // Menangani event sebelum unload (navigasi ke halaman lain)
+            window.addEventListener('beforeunload', function() {
+                // Jika loading modal sedang aktif, tampilkan pesan
+                if (loadingModal._element.classList.contains('show')) {
+                    showLoading('Memuat halaman...');
+                }
             });
         });
     </script>

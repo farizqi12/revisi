@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Transaksi extends Model
 {
+    protected $fillable = "";
     public function tabungan()
     {
         return $this->belongsTo(Tabungan::class);
