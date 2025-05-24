@@ -6,8 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tabungan extends Model
 {
-     protected $fillable = [
+    protected $fillable = [
         'suer_id',
         'saldo',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function transaksis()
+    {
+        return $this->hasMany(Transaksi::class);
+    }
 }

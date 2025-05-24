@@ -4,14 +4,13 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class OnlyKepalaSekolah
 {
     public function handle(Request $request, Closure $next)
     {
-        $userId = $request->cookie('user_id');
-        $user = User::find($userId);
+        $user = Auth::user(); // lebih aman dan sesuai standar Laravel
 
         if (!$user || $user->role !== 'kepala sekolah') {
             return redirect('/')->with('error', 'Anda tidak memiliki akses.');

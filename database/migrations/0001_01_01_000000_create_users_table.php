@@ -12,12 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->id(); // Sama dengan bigIncrements('id') tapi lebih modern
             $table->string('name');
             $table->string('username')->unique();
             $table->string('password');
-            $table->string('role');
+            $table->enum('role', ['kepala sekolah', 'guru', 'murid'])->default('guru'); // Gunakan enum untuk role yang fixed
+            $table->rememberToken(); // Untuk fitur remember me
             $table->timestamps();
+            $table->softDeletes(); // Tambahkan soft delete
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

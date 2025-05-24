@@ -77,7 +77,7 @@
             transition: all 0.5s ease;
         }
 
-        .welcome-card:hover {
+        .card-hover:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
         }
@@ -102,6 +102,47 @@
             background: #c0392b;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .text-gradient {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .balance-icon {
+            background: rgba(72, 187, 120, 0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-avatar {
+            background: rgba(102, 126, 234, 0.1);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .balance-footer {
+            display: flex;
+            align-items: center;
         }
 
         /* Responsive */
@@ -138,7 +179,7 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="/user-manage">
-                        <i class="fas fa-user"></i> Kelola Pengguna </a>
+                            <i class="fas fa-user"></i> Kelola Pengguna </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">
@@ -165,24 +206,42 @@
 
     <!-- Main Content -->
     <div class="main-container animate__animated animate__fadeIn">
-        <div class="welcome-card">
-            <h2 class="welcome-title">
-                <i class="fas fa-hand-wave me-2"></i>Selamat Datang, {{ $username }}
-            </h2>
-            <p class="mb-0">Anda telah berhasil login ke sistem.</p>
-        </div>
-
-        <!-- Debug cookie (bisa dihapus di production) -->
-        @if (env('APP_DEBUG'))
-            <div class="card mb-4">
-                <div class="card-header bg-light">
-                    Debug Information
+        <div class="welcome-card card-hover">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h2 class="welcome-title mb-3">
+                        <i class="fas fa-hand-wave me-2"></i>Selamat Datang, <span
+                            class="text-gradient">{{ $username }}</span>
+                    </h2>
+                    <p class="text-muted mb-4">Anda telah berhasil login ke sistem kami</p>
                 </div>
-                <div class="card-body">
-                    <pre>{{ json_encode(Cookie::get(), JSON_PRETTY_PRINT) }}</pre>
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle fa-3x text-primary"></i>
                 </div>
             </div>
-        @endif
+
+            <a href="riwayat-transaksi" class="text-decoration-none">
+
+                <div class="balance-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 text-muted">Total Saldo</p>
+                            <h3 class="mb-0 text-dark">Rp {{ number_format($saldo, 0, ',', '.') }}</h3>
+                        </div>
+                        <div class="balance-icon">
+                            <i class="fas fa-wallet fa-2x text-success"></i>
+                        </div>
+                    </div>
+                    <div class="balance-footer mt-3">
+                        <span class="badge bg-light text-success">
+                            <i class="fas fa-arrow-up me-1"></i> Aktif
+                        </span>
+                        <small class="text-muted ms-2">Update terakhir: sekarang</small>
+                    </div>
+                </div>
+            </a>
+
+        </div>
     </div>
 
     <!-- Bootstrap 5 JS Bundle with Popper -->

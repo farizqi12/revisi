@@ -1,12 +1,16 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LoginController;
 
 Route::get("/", [App\Http\Controllers\LoginController::class, "showLoginForm"])->name("login");
 Route::post("/login", [App\Http\Controllers\LoginController::class, "login"])->name("login.post");
-Route::get("/dashboard", [App\Http\Controllers\LoginController::class, "dashboard"])->name("dashboard")->middleware('only.kepala.sekolah');
 Route::post('/logout', [App\Http\Controllers\LoginController::class, 'logout'])->name('logout');
 
-Route::get('/dashboard-guru', [App\Http\Controllers\LoginController::class, 'dashboardGuru'])->name('dashboard')->middleware('only.guru');
+Route::middleware(['auth', 'only.kepala.sekolah'])->group(function () {
+    Route::get("/dashboard", [LoginController::class, "dashboard"])->name("dashboard.kepala");
+});
 
-Route::get('/user-manage', [App\Http\Controllers\ManageUser::class, 'show'])->name('usermanage')->middleware('only.kepala.sekolah');
+Route::middleware(['auth', 'only.guru'])->group(function () {
+    Route::get("/dashboard-guru", [LoginController::class, "dashboardGuru"])->name("dashboard.guru");
+});

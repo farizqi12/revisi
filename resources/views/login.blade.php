@@ -206,6 +206,12 @@
                             Harap masukkan password
                         </div>
                     </div>
+                    <div class="form-check mb-3 animate__animated animate__fadeIn animate-delay-3">
+                        <input class="form-check-input" type="checkbox" name="remember" id="remember">
+                        <label class="form-check-label" for="remember">
+                            Ingat saya
+                        </label>
+                    </div>
 
                     <div class="d-grid gap-2 animate__animated animate__fadeIn animate-delay-3">
                         <button type="submit" class="btn btn-login">
@@ -243,7 +249,7 @@
             return true;
         });
 
-        
+
         // Form validation
         (function() {
             'use strict'

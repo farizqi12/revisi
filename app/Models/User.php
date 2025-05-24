@@ -19,4 +19,13 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+    public function tabungan()
+    {
+        return $this->hasOne(Tabungan::class);
+    }
+
+    public function transaksis()
+    {
+        return $this->hasMany(Transaksi::class);
+    }
 }

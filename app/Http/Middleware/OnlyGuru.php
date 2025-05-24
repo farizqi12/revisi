@@ -4,14 +4,12 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 class OnlyGuru
 {
-   
-  public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
-        $userId = $request->cookie('user_id');
-        $user = User::find($userId);
+        $user = Auth::user();
 
         if (!$user || $user->role !== 'guru') {
             return redirect('/')->with('error', 'Anda tidak memiliki akses.');
@@ -20,3 +18,4 @@ class OnlyGuru
         return $next($request);
     }
 }
+
