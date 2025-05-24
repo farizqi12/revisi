@@ -206,24 +206,6 @@
             font-weight: 600;
         }
 
-        /* Loading Modal */
-        .loading-modal-content {
-            background: transparent;
-            border: none;
-        }
-        
-        .loading-spinner {
-            color: var(--primary-light);
-            width: 3rem;
-            height: 3rem;
-        }
-        
-        .loading-text {
-            margin-top: 1rem;
-            color: var(--primary-dark);
-            font-weight: 600;
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
             .navbar-collapse {
@@ -503,41 +485,14 @@
         </div>
     </div>
 
-    <!-- Loading Modal -->
-    <div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
-        data-bs-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 loading-modal-content">
-                <div class="modal-body text-center p-5">
-                    <div class="spinner-border loading-spinner" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <h5 class="mt-3 loading-text">Memproses...</h5>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Panggil Komponen Loading Modal -->
+    <x-loading-modal />
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Inisialisasi modal loading
-        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
-        
-        // Fungsi untuk menampilkan loading modal dengan pesan tertentu
-        function showLoading(message = 'Memproses...') {
-            document.querySelector('.loading-text').textContent = message;
-            loadingModal.show();
-        }
-        
-        // Fungsi untuk menyembunyikan loading modal
-        function hideLoading() {
-            loadingModal.hide();
-        }
-
-        // Event listener untuk semua form yang membutuhkan loading
+        // Animasi saat elemen muncul di viewport
         document.addEventListener('DOMContentLoaded', function() {
-            // Animasi saat elemen muncul di viewport
             const animateElements = document.querySelectorAll('.animate__animated');
 
             const observer = new IntersectionObserver((entries) => {
@@ -568,31 +523,7 @@
                 showLoading('Mencari pengguna...');
                 searchTimer = setTimeout(() => {
                     searchForm.submit();
-                }, 500); // Delay 500ms setelah berhenti mengetik
-            });
-
-            // Form tambah pengguna
-            const addUserForm = document.getElementById('addUserForm');
-            addUserForm.addEventListener('submit', function() {
-                showLoading('Menambahkan pengguna baru...');
-            });
-
-            // Form edit pengguna
-            const editUserForm = document.getElementById('editUserForm');
-            editUserForm.addEventListener('submit', function() {
-                showLoading('Menyimpan perubahan pengguna...');
-            });
-
-            // Form hapus pengguna
-            const deleteUserForm = document.getElementById('deleteUserForm');
-            deleteUserForm.addEventListener('submit', function() {
-                showLoading('Menghapus pengguna...');
-            });
-
-            // Form logout
-            const logoutForm = document.getElementById('logoutForm');
-            logoutForm.addEventListener('submit', function() {
-                showLoading('Memproses logout...');
+                }, 250); // Delay 500ms setelah berhenti mengetik
             });
 
             // Edit User Modal
@@ -628,16 +559,7 @@
                     deleteModal.show();
                 });
             });
-
-            // Menangani event sebelum unload (navigasi ke halaman lain)
-            window.addEventListener('beforeunload', function() {
-                // Jika loading modal sedang aktif, tampilkan pesan
-                if (loadingModal._element.classList.contains('show')) {
-                    showLoading('Memuat halaman...');
-                }
-            });
         });
     </script>
 </body>
-
 </html>

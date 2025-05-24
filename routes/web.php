@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ManageUser;
+use App\Http\Controllers\Topup;
 
 Route::get("/", [App\Http\Controllers\LoginController::class, "showLoginForm"])->name("login");
 Route::post("/login", [App\Http\Controllers\LoginController::class, "login"])->name("login.post");
@@ -20,4 +21,6 @@ Route::middleware(['auth', 'only.kepala.sekolah'])->group(function () {
 
 Route::middleware(['auth', 'only.guru'])->group(function () {
     Route::get("/dashboard-guru", [LoginController::class, "dashboardGuru"])->name("dashboard.guru");
+
+    Route::get('/topup', [Topup::class, 'show'])->name('topup');
 });

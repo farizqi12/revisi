@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Topup</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -197,70 +197,6 @@
             pointer-events: none;
         }
 
-        .balance-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-
-        .balance-info {
-            flex: 1;
-        }
-
-        .balance-actions {
-            display: flex;
-            gap: 10px;
-            margin-left: 15px;
-        }
-
-        .balance-action-btn {
-            border: none;
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .balance-action-btn i {
-            font-size: 0.9rem;
-        }
-
-        .topup-btn {
-            background-color: rgba(102, 126, 234, 0.1);
-            color: var(--primary-dark);
-        }
-
-        .topup-btn:hover {
-            background-color: rgba(102, 126, 234, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .withdraw-btn {
-            background-color: rgba(234, 102, 102, 0.1);
-            color: #e74c3c;
-        }
-
-        .withdraw-btn:hover {
-            background-color: rgba(234, 102, 102, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .balance-icon {
-            background: rgba(72, 187, 120, 0.1);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.3s ease;
-        }
-
         .balance-icon {
             background: rgba(72, 187, 120, 0.1);
             width: 50px;
@@ -433,10 +369,10 @@
 </head>
 
 <body>
-    <!-- Navbar -->
+    <!-- Navbar Guru-->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/dashboard-guru">
+            <a class="navbar-brand" href="/dashboard">
                 <i class="fas fa-tachometer-alt me-2"></i>Dashboard
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -446,17 +382,18 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-user"></i> Profil Saya </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-piggy-bank"></i> Kelola Transaksi
+                        <a class="nav-link active" href="#">
+                            <i class="fas fa-user me-1"></i> Kelola Pengguna
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">
-                            <i class="fas fa-calendar-check"></i> Pantau Absen
+                            <i class="fas fa-piggy-bank me-1"></i> Kelola Transaksi
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-calendar-check me-1"></i> Pantau Absen
                         </a>
                     </li>
                 </ul>
@@ -464,88 +401,66 @@
                     <form method="POST" action="/logout" id="logoutForm">
                         @csrf
                         <button type="submit" class="btn btn-logout">
-                            <i class="fas fa-sign-out-alt"></i> Logout
+                            <i class="fas fa-sign-out-alt me-1"></i> Logout
                         </button>
                     </form>
                 </div>
             </div>
         </div>
     </nav>
+
     <!-- Main Content -->
-    <div class="main-container animate__animated animate__fadeIn">
-        <div class="welcome-card card-hover">
-            <div class="d-flex justify-content-between align-items-start">
+    <div class="main-container">
+        <div class="welcome-card card-hover animate__animated" data-animation="animate__fadeInDown">
+            <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h2 class="welcome-title mb-3">
-                        <i class="fas fa-hand-paper"></i>Selamat Datang, <span
-                            class="text-gradient">{{ $username }}</span>
+                    <h2 class="welcome-title">
+                        <i class="fas fa-wallet"></i>
+                        Top Up Saldo
                     </h2>
-                    <p class="text-muted mb-4">Anda telah berhasil login ke sistem kami</p>
                 </div>
-                <a href="" class="text-decoration-none">
-                    <div class="user-avatar overflow-hidden">
-                        @if (!empty($userPhotoUrl))
-                            <img src="{{ $userPhotoUrl }}" alt="Foto Profil" class="w-100 h-100"
-                                style="object-fit: cover;">
-                        @else
-                            <i class="fas fa-user-circle fa-3x text-primary"></i>
-                        @endif
-                    </div>
-                </a>
+                <div class="user-avatar">
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'User') }}&background=667eea&color=fff"
+                        alt="User Avatar" width="50" height="50">
+                </div>
             </div>
+            <div class="balance-card mt-4 d-flex align-items-center gap-3">
+                <div class="balance-icon">
+                    <i class="fas fa-coins text-success fs-3"></i>
+                </div>
+                <div>
+                    <div class="text-muted">Saldo Anda</div>
+                    <div class="fs-4 fw-bold text-gradient">
+                        Rp{{ number_format($saldo, 0, ',', '.') }}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <div class="balance-card">
-                <div class="balance-content">
-                    <div class="balance-info">
-                        <p class="mb-1 text-muted">Total Saldo</p>
-                        <h3 class="mb-0 text-dark">Rp {{ number_format($saldo, 0, ',', '.') }}</h3>
-                        <div class="balance-footer mt-2">
-                            <span class="badge bg-light text-success">
-                                <i class="fas fa-arrow-up me-1"></i> Aktif
-                            </span>
-                            <small class="text-muted ms-2">Update terakhir: sekarang</small>
+        <div class="card card-hover animate__animated" data-animation="animate__fadeInUp">
+            <div class="card-body">
+                <form action="" method="POST" autocomplete="off">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="amount" class="form-label fw-semibold">Nominal Top Up</label>
+                        <div class="input-group">
+                            <span class="input-group-text">Rp</span>
+                            <input type="number" min="10000" step="1000" class="form-control" id="amount"
+                                name="amount" placeholder="Masukkan nominal (Ex: 10000)" required>
                         </div>
+                        <small class="text-muted">Menabung tanpa ada minimal nominal</small>
                     </div>
-                    <div class="balance-actions">
-                        <a href="/topup" class="balance-action-btn topup-btn text-decoration-none">
-                            <i class="fas fa-coins"></i>
-                            <span>Top Up</span>
-                        </a>
-                        <a href="/penarikan" class="balance-action-btn withdraw-btn text-decoration-none">
-                            <i class="fas fa-money-bill-wave"></i>
-                            <span>Penarikan</span>
-                        </a>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-arrow-up-from-bracket me-1"></i> Top Up Sekarang
+                        </button>
                     </div>
-                    <div class="balance-icon">
-                        <i class="fas fa-wallet fa-2x text-success"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="action-grid mt-4">
-                <a href="/absen-masuk" class="action-btn btn-outline-success text-decoration-none">
-                    <i class="fas fa-fingerprint text-success"></i>
-                    <span>Absen Masuk</span>
-                </a>
-                <a href="/absen-pulang" class="action-btn btn-outline-danger text-decoration-none">
-                    <i class="fas fa-sign-out-alt text-danger"></i>
-                    <span>Absen Pulang</span>
-                </a>
-                <a href="/dinas-luar" class="action-btn btn-outline-info text-decoration-none">
-                    <i class="fas fa-briefcase text-info"></i>
-                    <span>Absen Dinas Luar</span>
-                </a>
-                <a href="/izin-sakit" class="action-btn btn-outline-secondary text-decoration-none">
-                    <i class="fas fa-procedures text-secondary"></i>
-                    <span>Izin Sakit</span>
-                </a>
-                <a href="/izin-lain" class="action-btn btn-outline-dark text-decoration-none">
-                    <i class="fas fa-tasks text-dark"></i>
-                    <span>Izin Urusan Lain</span>
-                </a>
+                </form>
             </div>
         </div>
     </div>
+    
+
 
     <!-- Panggil Komponen Loading Modal -->
     <x-loading-modal />

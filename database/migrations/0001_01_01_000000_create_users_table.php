@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('username')->unique()->default(''); // Dengan nilai default
             $table->string('password');
             $table->enum('role', ['kepala sekolah', 'guru', 'murid'])->default('guru'); // Gunakan enum untuk role yang fixed
+            $table->string('fotoprofil')->nullable();
             $table->rememberToken(); // Untuk fitur remember me
             $table->timestamps();
             $table->softDeletes(); // Tambahkan soft delete
