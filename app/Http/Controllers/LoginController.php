@@ -21,6 +21,12 @@ class LoginController extends Controller
     // Proses login
     public function login(Request $request)
     {
+        // Validasi input
+        $request->validate([
+            'username' => 'required',
+            'password' => 'required'
+        ]);
+
         $credentials = $request->only('username', 'password');
         $remember = $request->has('remember');
 
@@ -36,7 +42,6 @@ class LoginController extends Controller
 
         return redirect()->back()->with('error', 'Username atau password salah.');
     }
-
     // Dashboard login
 
     public function dashboard()

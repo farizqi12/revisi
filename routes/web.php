@@ -23,4 +23,7 @@ Route::middleware(['auth', 'only.guru'])->group(function () {
     Route::get("/dashboard-guru", [LoginController::class, "dashboardGuru"])->name("dashboard.guru");
 
     Route::get('/topup', [Topup::class, 'show'])->name('topup');
+    Route::post('/topup-store', [Topup::class, 'store'])->name('topup.store');
+    Route::get('/topup-penarikan', [Topup::class, 'showPenarikan'])->name('topup.penarikan');
+Route::post('/withdraw-store', [Topup::class, 'withdraw'])->name('withdrawal.store');
 });

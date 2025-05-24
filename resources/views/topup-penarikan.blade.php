@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Topup</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -23,6 +23,18 @@
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
             padding-top: 70px;
+            opacity: 0;
+            animation: fadeIn 1s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         /* Navbar */
@@ -30,6 +42,21 @@
             background: var(--primary-gradient);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             padding: 0.8rem 2rem;
+            transform: translateY(-20px);
+            opacity: 0;
+            animation: slideDown 0.8s ease-out 0.3s forwards;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .navbar-brand {
@@ -90,6 +117,21 @@
             padding: 2rem;
             max-width: 1400px;
             margin: 0 auto;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideUp 0.8s ease-out 0.6s forwards;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .welcome-card {
@@ -195,70 +237,6 @@
             height: 100%;
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
             pointer-events: none;
-        }
-
-        .balance-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-
-        .balance-info {
-            flex: 1;
-        }
-
-        .balance-actions {
-            display: flex;
-            gap: 10px;
-            margin-left: 15px;
-        }
-
-        .balance-action-btn {
-            border: none;
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .balance-action-btn i {
-            font-size: 0.9rem;
-        }
-
-        .topup-btn {
-            background-color: rgba(102, 126, 234, 0.1);
-            color: var(--primary-dark);
-        }
-
-        .topup-btn:hover {
-            background-color: rgba(102, 126, 234, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .withdraw-btn {
-            background-color: rgba(234, 102, 102, 0.1);
-            color: #e74c3c;
-        }
-
-        .withdraw-btn:hover {
-            background-color: rgba(234, 102, 102, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .balance-icon {
-            background: rgba(72, 187, 120, 0.1);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.3s ease;
         }
 
         .balance-icon {
@@ -433,7 +411,7 @@
 </head>
 
 <body>
-    <!-- Navbar -->
+    <!-- Navbar Guru-->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="/dashboard-guru">
@@ -447,16 +425,17 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="#">
-                            <i class="fas fa-user"></i> Profil Saya </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-piggy-bank"></i> Kelola Transaksi
+                            <i class="fas fa-user me-1"></i> Kelola Pengguna
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">
-                            <i class="fas fa-calendar-check"></i> Pantau Absen
+                            <i class="fas fa-piggy-bank me-1"></i> Kelola Transaksi
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-calendar-check me-1"></i> Pantau Absen
                         </a>
                     </li>
                 </ul>
@@ -464,86 +443,81 @@
                     <form method="POST" action="/logout" id="logoutForm">
                         @csrf
                         <button type="submit" class="btn btn-logout">
-                            <i class="fas fa-sign-out-alt"></i> Logout
+                            <i class="fas fa-sign-out-alt me-1"></i> Logout
                         </button>
                     </form>
                 </div>
             </div>
         </div>
     </nav>
-    <!-- Main Content -->
-    <div class="main-container animate__animated animate__fadeIn">
-        <div class="welcome-card card-hover">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <h2 class="welcome-title mb-3">
-                        <i class="fas fa-hand-paper"></i>Selamat Datang, <span
-                            class="text-gradient">{{ $username }}</span>
-                    </h2>
-                    <p class="text-muted mb-4">Anda telah berhasil login ke sistem kami</p>
-                </div>
-                <a href="" class="text-decoration-none">
-                    <div class="user-avatar overflow-hidden">
-                        @if (!empty($userPhotoUrl))
-                            <img src="{{ $userPhotoUrl }}" alt="Foto Profil" class="w-100 h-100"
-                                style="object-fit: cover;">
-                        @else
-                            <i class="fas fa-user-circle fa-3x text-primary"></i>
-                        @endif
-                    </div>
-                </a>
-            </div>
-            <div class="balance-card">
-                <div class="balance-content">
-                    <div class="balance-info">
-                        <p class="mb-1 text-muted">Total Saldo</p>
-                        <h3 class="mb-0 text-dark">Rp {{ number_format($saldo, 0, ',', '.') }}</h3>
-                        <div class="balance-footer mt-2">
-                            <span class="badge bg-light text-success">
-                                <i class="fas fa-arrow-up me-1"></i> Aktif
-                            </span>
-                            <small class="text-muted ms-2">Update terakhir: sekarang</small>
-                        </div>
-                    </div>
-                    <div class="balance-actions">
-                        <a href="/topup" class="balance-action-btn topup-btn text-decoration-none">
-                            <i class="fas fa-coins"></i>
-                            <span>Top Up</span>
-                        </a>
-                        <a href="/topup-penarikan" class="balance-action-btn withdraw-btn text-decoration-none">
-                            <i class="fas fa-money-bill-wave"></i>
-                            <span>Penarikan</span>
-                        </a>
-                    </div>
-                    <div class="balance-icon">
-                        <a href="/riwayat-transaksi" class="text-decoration-none">
-                            <i class="fas fa-wallet fa-2x text-success"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
 
-            <div class="action-grid mt-4">
-                <a href="/absen-masuk" class="action-btn btn-outline-success text-decoration-none">
-                    <i class="fas fa-fingerprint text-success"></i>
-                    <span>Absen Masuk</span>
-                </a>
-                <a href="/absen-pulang" class="action-btn btn-outline-danger text-decoration-none">
-                    <i class="fas fa-sign-out-alt text-danger"></i>
-                    <span>Absen Pulang</span>
-                </a>
-                <a href="/dinas-luar" class="action-btn btn-outline-info text-decoration-none">
-                    <i class="fas fa-briefcase text-info"></i>
-                    <span>Absen Dinas Luar</span>
-                </a>
-                <a href="/izin-sakit" class="action-btn btn-outline-secondary text-decoration-none">
-                    <i class="fas fa-procedures text-secondary"></i>
-                    <span>Izin Sakit</span>
-                </a>
-                <a href="/izin-lain" class="action-btn btn-outline-dark text-decoration-none">
-                    <i class="fas fa-tasks text-dark"></i>
-                    <span>Izin Urusan Lain</span>
-                </a>
+    <!-- Main Content -->
+       <div class="main-container">
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        <div class="welcome-card card-hover animate__animated" data-animation="animate__fadeInDown">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="welcome-title">
+                        <i class="fas fa-hand-holding-usd"></i>
+                        Permintaan Penarikan
+                    </h2>
+                </div>
+                <div class="user-avatar">
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'User') }}&background=667eea&color=fff"
+                        alt="User Avatar" width="50" height="50">
+                </div>
+            </div>
+            <div class="balance-card mt-4 d-flex align-items-center gap-3">
+                <div class="balance-icon">
+                    <i class="fas fa-coins text-success fs-3"></i>
+                </div>
+                <div>
+                    <div class="text-muted">Saldo Anda</div>
+                    <div class="fs-4 fw-bold text-gradient">
+                        Rp{{ number_format($saldo, 0, ',', '.') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-hover animate__animated" data-animation="animate__fadeInUp">
+            <div class="card-body">
+                <form action="{{ route('withdrawal.store') }}" method="POST" autocomplete="off">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="amount" class="form-label fw-semibold">Jumlah Penarikan</label>
+                        <div class="input-group">
+                            <span class="input-group-text">Rp</span>
+                            <input type="number" min="1000" step="1000" class="form-control" id="amount"
+                                name="amount" placeholder="Minimal Rp1.000 (Ex: 1000)" required
+                                max="{{ $saldo }}">
+                        </div>
+                        <small class="text-muted">Minimal penarikan Rp1.000 (maksimal Rp{{ number_format($saldo, 0, ',', '.') }})</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label fw-semibold">Keterangan (Opsional)</label>
+                        <input type="text" class="form-control" id="description" name="description"
+                            placeholder="Tambahkan keterangan jika perlu" maxlength="255">
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-money-bill-wave me-1"></i> Ajukan Permintaan Penarikan
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -554,10 +528,46 @@
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Animasi saat elemen muncul di viewport
         document.addEventListener('DOMContentLoaded', function() {
-            const animateElements = document.querySelectorAll('.animate__animated');
+            // Handle all button clicks (except dropdown toggles and already handled buttons)
+            document.querySelectorAll('button:not([data-bs-toggle]), input[type="submit"]').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // Skip if button is disabled or already handled by form submission
+                    if (this.disabled || this.closest('form')) return;
 
+                    // Skip if it's a dropdown toggle
+                    if (this.getAttribute('data-bs-toggle') === 'dropdown') return;
+
+                    showLoading('Memproses permintaan...');
+                });
+            });
+
+            // Special handling for logout button
+            const logoutForm = document.getElementById('logoutForm');
+            if (logoutForm) {
+                logoutForm.addEventListener('submit', function() {
+                    showLoading('Sedang keluar...');
+                });
+            }
+
+            // Handle navigation links (complementing the component's handler)
+            document.querySelectorAll('a.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Skip if already handled by component's script
+                    if (this.target === '_blank' || this.href.includes('#') || e.ctrlKey || e
+                        .metaKey) return;
+
+                    // Special case for active navigation
+                    if (!this.classList.contains('active')) {
+                        e.preventDefault();
+                        showLoading('Memuat halaman...');
+                        setTimeout(() => window.location.href = this.href, 100);
+                    }
+                });
+            });
+
+            // Animation initialization (your existing code)
+            const animateElements = document.querySelectorAll('.animate__animated');
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -572,50 +582,6 @@
 
             animateElements.forEach(element => {
                 observer.observe(element);
-            });
-
-            // Tambahkan animasi hover untuk tombol aksi
-            const actionButtons = document.querySelectorAll('.action-btn');
-            actionButtons.forEach(button => {
-                button.addEventListener('mouseenter', function() {
-                    const icon = this.querySelector('i');
-                    icon.style.transform = 'scale(1.2)';
-                });
-                button.addEventListener('mouseleave', function() {
-                    const icon = this.querySelector('i');
-                    icon.style.transform = 'scale(1)';
-                });
-            });
-
-            // Tangkap semua klik link
-            document.querySelectorAll('a[href^="/"]').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    // Abaikan jika target blank atau anchor link
-                    if (this.target === '_blank' || this.href.includes('#')) return;
-
-                    // Abaikan jika Ctrl atau Cmd diklik (untuk buka tab baru)
-                    if (e.ctrlKey || e.metaKey) return;
-
-                    e.preventDefault();
-                    showLoading('Memuat halaman...');
-
-                    // Redirect setelah sedikit delay untuk memastikan modal muncul
-                    setTimeout(() => {
-                        window.location.href = this.href;
-                    }, 100);
-                });
-            });
-
-            // Tangkap semua form submission
-            document.querySelectorAll('form').forEach(form => {
-                form.addEventListener('submit', function() {
-                    showLoading('Memproses...');
-                });
-            });
-
-            // Tangkap event sebelum unload (navigasi atau refresh)
-            window.addEventListener('beforeunload', function() {
-                showLoading('Memuat...');
             });
         });
     </script>

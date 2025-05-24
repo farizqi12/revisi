@@ -112,9 +112,28 @@
             font-size: 16px;
         }
 
+        /* Perubahan pada CSS floating label dan input icon */
         .floating-label {
             position: relative;
             margin-bottom: 25px;
+        }
+
+        .floating-label .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-size: 16px;
+            transition: all 0.3s;
+            z-index: 2;
+        }
+
+        .floating-label input:focus~.input-icon,
+        .floating-label input:not(:placeholder-shown)~.input-icon {
+            top: 15px;
+            transform: translateY(0);
+            font-size: 14px;
         }
 
         .floating-label label {
@@ -126,6 +145,7 @@
             pointer-events: none;
             background: white;
             padding: 0 5px;
+            z-index: 1;
         }
 
         .floating-label input:focus+label,
@@ -134,6 +154,7 @@
             left: 35px;
             font-size: 12px;
             color: #667eea;
+            z-index: 3;
         }
 
         .animate-delay-1 {
@@ -241,56 +262,42 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.querySelector('form').addEventListener('submit', function(e) {
-            // Tampilkan modal loading saat form disubmit
-            var loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+            // Validasi form sebelum menampilkan loading modal
+            const form = this;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                e.preventDefault();
+                e.stopPropagation();
+                form.classList.add('was-validated');
+                return false;
+            }
+
+            // Tampilkan modal loading hanya jika form valid
+            const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
             loadingModal.show();
 
-            // Lanjutkan proses submit form
             return true;
         });
-
 
         // Form validation
         (function() {
             'use strict'
-
-            // Fetch all the forms we want to apply custom Bootstrap validation styles to
             var forms = document.querySelectorAll('.needs-validation')
 
-            // Loop over them and prevent submission
             Array.prototype.slice.call(forms)
                 .forEach(function(form) {
                     form.addEventListener('submit', function(event) {
                         if (!form.checkValidity()) {
                             event.preventDefault()
                             event.stopPropagation()
+                            // Jangan tampilkan loading modal jika form tidak valid
                         }
-
                         form.classList.add('was-validated')
                     }, false)
                 })
         })()
-
-        // Add animation to elements when they come into view
-        document.addEventListener('DOMContentLoaded', function() {
-            const animateElements = document.querySelectorAll('.animate__animated');
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const animation = entry.target.getAttribute('data-animation');
-                        entry.target.classList.add(animation);
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, {
-                threshold: 0.1
-            });
-
-            animateElements.forEach(element => {
-                observer.observe(element);
-            });
-        });
     </script>
 </body>
 

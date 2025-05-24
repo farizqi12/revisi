@@ -239,9 +239,8 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">
-                            <i class="fas fa-user me-1"></i> Kelola Pengguna
-                        </a>
+                        <a class="nav-link active" href="/user-manage">
+                            <i class="fas fa-user"></i> Kelola Pengguna </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">
@@ -253,9 +252,14 @@
                             <i class="fas fa-calendar-check me-1"></i> Pantau Absen
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fa-solid fa-location-crosshairs"></i> Atur Lokasi Absen
+                        </a>
+                    </li>
                 </ul>
                 <div class="d-flex">
-                    <form method="POST" action="/logout" id="logoutForm">
+                    <form method="POST" action="/logout">
                         @csrf
                         <button type="submit" class="btn btn-logout">
                             <i class="fas fa-sign-out-alt me-1"></i> Logout
@@ -555,11 +559,13 @@
                     document.getElementById('deleteId').value = id;
                     document.getElementById('deleteUserName').textContent = name;
 
-                    const deleteModal = new bootstrap.Modal(document.getElementById('deleteUserModal'));
+                    const deleteModal = new bootstrap.Modal(document.getElementById(
+                        'deleteUserModal'));
                     deleteModal.show();
                 });
             });
         });
     </script>
 </body>
+
 </html>
