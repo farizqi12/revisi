@@ -32,6 +32,7 @@ Route::middleware(['auth', 'only.guru'])->group(function () {
     Route::post('/topup-store', [Topup::class, 'store'])->name('topup.store');
     Route::get('/topup-penarikan', [Topup::class, 'showPenarikan'])->name('topup.penarikan');
     Route::post('/withdraw-store', [Topup::class, 'withdraw'])->name('withdrawal.store');
+    Route::get('/riwayat-topup', [Topup::class, 'showriwayat'])->name('riwayat.topup');
 
-    
+
 });

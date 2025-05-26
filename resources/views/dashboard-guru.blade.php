@@ -516,7 +516,7 @@
                         </a>
                     </div>
                     <div class="balance-icon">
-                        <a href="/riwayat-transaksi" class="text-decoration-none">
+                        <a href="/riwayat-topup" class="text-decoration-none">
                             <i class="fas fa-wallet fa-2x text-success"></i>
                         </a>
                     </div>

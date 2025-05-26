@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tabungan;
+use App\Models\Transaksi;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +20,6 @@ class Topup extends Controller
         ]);
     }
 
-
     public function showPenarikan()
     {
         $user = Auth::user();
@@ -27,6 +27,28 @@ class Topup extends Controller
 
         return view('topup-penarikan', [
             'saldo' => $saldo ? $saldo->saldo : 0
+        ]);
+    }
+
+    public function showRiwayat()
+    {
+        $user = Auth::user();
+
+        // Get the user's savings account
+        $tabungan = Tabungan::where('user_id', $user->id)->first();
+
+        if (!$tabungan) {
+            return redirect()->back()->with('error', 'Anda belum memiliki rekening tabungan');
+        }
+
+        // Get all transactions for this savings account, ordered by latest first
+        $transactions = Transaksi::where('tabungan_id', $tabungan->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10); // 10 items per page
+
+        return view('riwayat-topup', [
+            'transactions' => $transactions,
+            'tabungan' => $tabungan
         ]);
     }
     public function store(Request $request)
