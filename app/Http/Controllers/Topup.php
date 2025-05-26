@@ -19,6 +19,7 @@ class Topup extends Controller
         ]);
     }
 
+
     public function showPenarikan()
     {
         $user = Auth::user();
@@ -28,14 +29,12 @@ class Topup extends Controller
             'saldo' => $saldo ? $saldo->saldo : 0
         ]);
     }
-
-
     public function store(Request $request)
     {
         // Validasi input
         $validated = $request->validate([
             'amount' => 'required|numeric|min:1000',
-            'description' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
         ]);
 
         // Cek apakah guru memiliki tabungan
@@ -45,14 +44,21 @@ class Topup extends Controller
             return back()->with('error', 'Anda belum memiliki rekening tabungan');
         }
 
-        // Insert transaksi sederhana
+        // Cek apakah ada transaksi menunggu
+        $pendingTransaction = DB::table('transaksis')
+            ->where('tabungan_id', $tabungan->id)
+            ->where('status', 'menunggu')
+            ->exists();
+
+        if ($pendingTransaction) {
+            return back()->with('error', 'Anda masih memiliki transaksi yang menunggu verifikasi. Silakan tunggu hingga transaksi sebelumnya diverifikasi.');
+        }
+
+        // Insert transaksi
         DB::table('transaksis')->insert([
             'tabungan_id' => $tabungan->id,
-            'user_id' => Auth::id(),
             'jenis' => 'setoran',
             'jumlah' => $validated['amount'],
-            'saldo_awal' => $tabungan->saldo,
-            'saldo_akhir' => $tabungan->saldo, // Belum berubah sampai diverifikasi
             'keterangan' => $validated['description'] ?? '',
             'status' => 'menunggu',
             'created_at' => now(),
@@ -63,41 +69,46 @@ class Topup extends Controller
     }
 
     public function withdraw(Request $request)
-{
-    // Validasi input
-    $validated = $request->validate([
-        'amount' => 'required|numeric|min:1000',
-        'description' => 'nullable|string|max:255',
-    ]);
+    {
+        // Validasi input
+        $validated = $request->validate([
+            'amount' => 'required|numeric|min:1000',
+            'description' => 'nullable|string',
+        ]);
 
-    // Cek apakah guru memiliki tabungan
-    $tabungan = Tabungan::where('user_id', Auth::id())->first();
+        // Cek apakah guru memiliki tabungan
+        $tabungan = Tabungan::where('user_id', Auth::id())->first();
 
-    if (!$tabungan) {
-        return back()->with('error', 'Anda belum memiliki rekening tabungan');
+        if (!$tabungan) {
+            return back()->with('error', 'Anda belum memiliki rekening tabungan');
+        }
+
+        // Cek apakah ada transaksi menunggu
+        $pendingTransaction = DB::table('transaksis')
+            ->where('tabungan_id', $tabungan->id)
+            ->where('status', 'menunggu')
+            ->exists();
+
+        if ($pendingTransaction) {
+            return back()->with('error', 'Anda masih memiliki transaksi yang menunggu verifikasi. Silakan tunggu hingga transaksi sebelumnya diverifikasi.');
+        }
+
+        // Validasi saldo mencukupi
+        if ($tabungan->saldo < $validated['amount']) {
+            return back()->with('error', 'Saldo tidak mencukupi untuk penarikan ini');
+        }
+
+        // Insert transaksi penarikan
+        DB::table('transaksis')->insert([
+            'tabungan_id' => $tabungan->id,
+            'jenis' => 'penarikan',
+            'jumlah' => $validated['amount'],
+            'keterangan' => $validated['description'] ?? '',
+            'status' => 'menunggu',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        return redirect()->route('topup.penarikan')->with('success', 'Permintaan penarikan berhasil diajukan');
     }
-
-    // Validasi saldo mencukupi
-    if ($tabungan->saldo < $validated['amount']) {
-        return back()->with('error', 'Saldo tidak mencukupi untuk penarikan ini');
-    }
-
-    // Insert transaksi penarikan
-    DB::table('transaksis')->insert([
-        'tabungan_id' => $tabungan->id,
-        'user_id' => Auth::id(),
-        'jenis' => 'penarikan',
-        'jumlah' => $validated['amount'],
-        'saldo_awal' => $tabungan->saldo,
-        'saldo_akhir' => $tabungan->saldo, // Belum berubah sampai diverifikasi
-        'keterangan' => $validated['description'] ?? '',
-        'status' => 'menunggu',
-        'created_at' => now(),
-        'updated_at' => now()
-    ]);
-
-    return redirect()->route('topup')->with('success', 'Permintaan penarikan berhasil diajukan');
-}
-
-
 }

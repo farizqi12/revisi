@@ -12,63 +12,37 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('transaksis', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('tabungan_id');
-            $table->unsignedBigInteger('user_id'); // Langsung relasi ke user untuk query yang lebih efisien
-            $table->enum('jenis', ['setoran', 'penarikan', 'transfer', 'pembayaran']);
-            $table->unsignedBigInteger('jumlah');
-            $table->decimal('saldo_awal', 15, 2); // Menyimpan saldo sebelum transaksi
-            $table->decimal('saldo_akhir', 15, 2); // Menyimpan saldo setelah transaksi
-            $table->text('keterangan')->nullable();
-            $table->enum('status', ['diterima', 'menunggu', 'ditolak', 'dibatalkan'])->default('menunggu');
-            $table->unsignedBigInteger('admin_id')->nullable(); // ID admin yang memverifikasi
-            $table->timestamp('waktu_verifikasi')->nullable();
-            $table->timestamps();
+            $table->bigIncrements('id'); // PRIMARY KEY
+            $table->unsignedBigInteger('tabungan_id'); // Foreign key ke tabungan
+            $table->enum('jenis', ['setoran', 'penarikan']); // Jenis transaksi
+            $table->unsignedBigInteger('jumlah'); // Jumlah transaksi
+            $table->longText('keterangan'); // Menggunakan longText untuk teks yang panjang
+            $table->enum('status', ['diterima', 'menunggu', 'ditolak']); // Jenis transaksi
+            $table->timestamps(); // created_at dan updated_at
 
-            // Foreign keys
-            $table->foreign('tabungan_id')
-                ->references('id')
-                ->on('tabungans')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
-
-            $table->foreign('user_id')
-                ->references('id')
-                ->on('users')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
-
-            $table->foreign('admin_id')
-                ->references('id')
-                ->on('users')
-                ->onDelete('set null')
-                ->onUpdate('cascade');
-
-            // Indexes
-            $table->index('tabungan_id');
-            $table->index('user_id');
-            $table->index('status');
-            $table->index('created_at'); // Untuk laporan berdasarkan periode
+            // Definisi foreign key
+            $table->foreign('tabungan_id')->references('id')->on('tabungans')->onDelete('cascade');
+            $table->index('tabungan_id'); // Menambahkan indeks pada kolom tabungan_id
         });
 
         // Untuk transfer antar rekening
-        Schema::create('transfer_antars', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('transaksi_pengirim_id');
-            $table->unsignedBigInteger('transaksi_penerima_id');
-            $table->timestamps();
+        // Schema::create('transfer_antars', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->unsignedBigInteger('transaksi_pengirim_id');
+        //     $table->unsignedBigInteger('transaksi_penerima_id');
+        //     $table->timestamps();
 
-            // Foreign keys
-            $table->foreign('transaksi_pengirim_id')
-                ->references('id')
-                ->on('transaksis')
-                ->onDelete('cascade');
+        //     // Foreign keys
+        //     $table->foreign('transaksi_pengirim_id')
+        //         ->references('id')
+        //         ->on('transaksis')
+        //         ->onDelete('cascade');
 
-            $table->foreign('transaksi_penerima_id')
-                ->references('id')
-                ->on('transaksis')
-                ->onDelete('cascade');
-        });
+        //     $table->foreign('transaksi_penerima_id')
+        //         ->references('id')
+        //         ->on('transaksis')
+        //         ->onDelete('cascade');
+        // });
     }
 
     /**
@@ -76,7 +50,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('transfer_antars');
+        // Schema::dropIfExists('transfer_antars');
         Schema::dropIfExists('transaksis');
     }
 };

@@ -243,7 +243,7 @@
                             <i class="fas fa-user"></i> Kelola Pengguna </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="/kelola-transaksi">
                             <i class="fas fa-piggy-bank me-1"></i> Kelola Transaksi
                         </a>
                     </li>

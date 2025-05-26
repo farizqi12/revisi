@@ -12,20 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tabungans', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('saldo')->default(0);
-            $table->timestamps();
-            $table->softDeletes();
+            $table->bigIncrements('id'); // PRIMARY KEY
+            $table->unsignedBigInteger('user_id'); // Foreign key harus sesuai dengan users.id
 
-            // Foreign key constraint
-            $table->foreign('user_id')
-                ->references('id')
-                ->on('users')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
-
-            $table->unique('user_id'); // Satu user hanya boleh punya satu rekening tabungan
+            $table->unsignedBigInteger('saldo')->default(0);  // Saldo tidak boleh negatif
+            $table->timestamps(); // Menambahkan kolom created_at dan updated_at
+            // Definisikan foreign key dengan benar
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->index('user_id'); // Menambahkan indeks pada kolom user_id
         });
     }
 

@@ -11,13 +11,15 @@ class Tabungan extends Model
         'saldo',
     ];
 
+    protected $table = 'tabungans'; // Sesuaikan dengan nama tabel
+
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function transaksis()
     {
-        return $this->hasMany(Transaksi::class);
+        return $this->hasMany(Transaksi::class, 'tabungan_id');
     }
 }
