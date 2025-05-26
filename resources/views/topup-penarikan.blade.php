@@ -425,12 +425,11 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="#">
-                            <i class="fas fa-user me-1"></i> Kelola Pengguna
-                        </a>
+                            <i class="fas fa-user"></i> Profil Saya </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-piggy-bank me-1"></i> Kelola Transaksi
+                        <a class="nav-link" href="/riwayat-topup">
+                            <i class="fas fa-history"></i> Riwayat Transaksi
                         </a>
                     </li>
                     <li class="nav-item">
@@ -452,7 +451,7 @@
     </nav>
 
     <!-- Main Content -->
-       <div class="main-container">
+    <div class="main-container">
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {{ session('success') }}
@@ -505,7 +504,8 @@
                                 name="amount" placeholder="Minimal Rp1.000 (Ex: 1000)" required
                                 max="{{ $saldo }}">
                         </div>
-                        <small class="text-muted">Minimal penarikan Rp1.000 (maksimal Rp{{ number_format($saldo, 0, ',', '.') }})</small>
+                        <small class="text-muted">Minimal penarikan Rp1.000 (maksimal
+                            Rp{{ number_format($saldo, 0, ',', '.') }})</small>
                     </div>
                     <div class="mb-3">
                         <label for="description" class="form-label fw-semibold">Keterangan (Opsional)</label>

@@ -289,8 +289,8 @@
                             <i class="fas fa-user"></i> Profil Saya </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-piggy-bank"></i> Kelola Transaksi
+                        <a class="nav-link active" href="/riwayat-topup">
+                            <i class="fas fa-history"></i> Riwayat Transaksi
                         </a>
                     </li>
                     <li class="nav-item">

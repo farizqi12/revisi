@@ -425,12 +425,11 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="#">
-                            <i class="fas fa-user me-1"></i> Kelola Pengguna
-                        </a>
+                            <i class="fas fa-user"></i> Profil Saya </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-piggy-bank me-1"></i> Kelola Transaksi
+                        <a class="nav-link" href="/riwayat-topup">
+                            <i class="fas fa-history"></i> Riwayat Transaksi
                         </a>
                     </li>
                     <li class="nav-item">
