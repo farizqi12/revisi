@@ -151,7 +151,7 @@
                         </a>
                     </li>
                      <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="/atur-absen">
                             <i class="fa-solid fa-location-crosshairs"></i> Atur Lokasi Absen
                         </a>
                     </li>

@@ -28,4 +28,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Transaksi::class);
     }
+    public function absensis()
+    {
+        return $this->hasMany(Absensi::class);
+    }
 }
