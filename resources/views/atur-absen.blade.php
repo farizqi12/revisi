@@ -269,20 +269,36 @@
     </nav>
 
     <!-- Main Content -->
+    <!-- Main Content -->
     <div class="main-container animate__animated animate__fadeIn">
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
+        <!-- Toast notifications -->
+        <div class="toast-container">
+            @if (session('success'))
+                <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header bg-success text-white">
+                        <strong class="me-auto">Sukses</strong>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        {{ session('success') }}
+                    </div>
+                </div>
+            @endif
 
-        @if (session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
+            @if (session('error'))
+                <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header bg-danger text-white">
+                        <strong class="me-auto">Error</strong>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        {{ session('error') }}
+                    </div>
+                </div>
+            @endif
+        </div>
 
         <div class="card">
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -313,11 +329,13 @@
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $lokasi->name }}</td>
                                 <td>{{ $lokasi->alamat ?? '-' }}</td>
-                                <td>{{ $lokasi->latitude }}, {{ $lokasi->longitude }}</td>
+                                <td>{{ number_format($lokasi->latitude, 6) }},
+                                    {{ number_format($lokasi->longitude, 6) }}</td>
                                 <td>{{ $lokasi->radius }}</td>
                                 <td>
-                                    <span class="badge {{ $lokasi->is_active ? 'badge-active' : 'badge-inactive' }}">
-                                        {{ $lokasi->is_active ? 'Aktif' : 'Nonaktif' }}
+                                    <span
+                                        class="badge {{ $lokasi->is_active === 'enable' ? 'badge-active' : 'badge-inactive' }}">
+                                        {{ $lokasi->is_active === 'enable' ? 'Aktif' : 'Nonaktif' }}
                                     </span>
                                 </td>
                                 <td>
@@ -327,8 +345,8 @@
                                         data-alamat="{{ $lokasi->alamat }}" data-is_active="{{ $lokasi->is_active }}">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-danger delete-location" data-id="{{ $lokasi->id }}"
-                                        data-name="{{ $lokasi->name }}">
+                                    <button class="btn btn-sm btn-danger delete-location"
+                                        data-id="{{ $lokasi->id }}" data-name="{{ $lokasi->name }}">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </td>
@@ -349,7 +367,7 @@
                     <h5 class="modal-title" id="addLocationModalLabel">Tambah Lokasi Absen</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('lokasi.store') }}" method="POST">
+                <form action="{{ route('lokasi.store') }}" method="POST" id="addLocationForm">
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">
@@ -360,32 +378,37 @@
                             <label for="alamat" class="form-label">Alamat Lengkap</label>
                             <textarea class="form-control" id="alamat" name="alamat" rows="2"></textarea>
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">Pilih Lokasi</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="locationSearchInput"
+                                    placeholder="Cari lokasi...">
+                                <button class="btn btn-outline-secondary" type="button" id="pickLocation">
+                                    <i class="fas fa-map-marker-alt"></i> Pilih dari Peta
+                                </button>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="latitude" class="form-label">Latitude</label>
-                                <div class="input-group">
-                                    <input type="number" step="0.00000001" class="form-control" id="latitude"
-                                        name="latitude" required readonly>
-                                    <button class="btn btn-outline-secondary" type="button" id="pickLocation">
-                                        <i class="fas fa-map-marker-alt"></i> Pilih dari Peta
-                                    </button>
-                                </div>
+                                <input type="text" class="form-control" id="latitude" name="latitude" required
+                                    readonly>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="longitude" class="form-label">Longitude</label>
-                                <input type="number" step="0.00000001" class="form-control" id="longitude"
-                                    name="longitude" required readonly>
+                                <input type="text" class="form-control" id="longitude" name="longitude" required
+                                    readonly>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label for="radius" class="form-label">Radius (meter)</label>
                             <input type="number" class="form-control" id="radius" name="radius" value="100"
-                                min="1" max="1000" required>
-                            <small class="text-muted">Maksimum 1000 meter</small>
+                                min="10" max="1000" required>
+                            <small class="text-muted">Minimal 10 meter, maksimal 1000 meter</small>
                         </div>
-                        <div class="mb-3 form-check">
+                        <div class="mb-3 form-check form-switch">
                             <input type="checkbox" class="form-check-input" id="is_active" name="is_active" checked>
-                            <label class="form-check-label" for="is_active">Aktif</label>
+                            <label class="form-check-label" for="is_active">Aktifkan Lokasi</label>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -418,32 +441,37 @@
                             <label for="editAlamat" class="form-label">Alamat Lengkap</label>
                             <textarea class="form-control" id="editAlamat" name="alamat" rows="2"></textarea>
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">Pilih Lokasi</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="editLocationSearchInput"
+                                    placeholder="Cari lokasi...">
+                                <button class="btn btn-outline-secondary" type="button" id="editPickLocation">
+                                    <i class="fas fa-map-marker-alt"></i> Pilih dari Peta
+                                </button>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="editLatitude" class="form-label">Latitude</label>
-                                <div class="input-group">
-                                    <input type="number" step="0.00000001" class="form-control" id="editLatitude"
-                                        name="latitude" required readonly>
-                                    <button class="btn btn-outline-secondary" type="button" id="editPickLocation">
-                                        <i class="fas fa-map-marker-alt"></i> Pilih dari Peta
-                                    </button>
-                                </div>
+                                <input type="text" class="form-control" id="editLatitude" name="latitude"
+                                    required readonly>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="editLongitude" class="form-label">Longitude</label>
-                                <input type="number" step="0.00000001" class="form-control" id="editLongitude"
-                                    name="longitude" required readonly>
+                                <input type="text" class="form-control" id="editLongitude" name="longitude"
+                                    required readonly>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label for="editRadius" class="form-label">Radius (meter)</label>
                             <input type="number" class="form-control" id="editRadius" name="radius"
-                                min="1" max="1000" required>
-                            <small class="text-muted">Maksimum 1000 meter</small>
+                                min="10" max="1000" required>
+                            <small class="text-muted">Minimal 10 meter, maksimal 1000 meter</small>
                         </div>
-                        <div class="mb-3 form-check">
+                        <div class="mb-3 form-check form-switch">
                             <input type="checkbox" class="form-check-input" id="editIsActive" name="is_active">
-                            <label class="form-check-label" for="editIsActive">Aktif</label>
+                            <label class="form-check-label" for="editIsActive">Aktifkan Lokasi</label>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -489,15 +517,15 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3 position-relative">
-                        <input type="text" id="locationSearch" class="form-control" placeholder="Cari lokasi...">
-                        <div class="loading-indicator" id="searchLoading">
-                            <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
+                    <div id="osmMap"></div>
+                    <div class="mt-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="autoFillAddress" checked>
+                            <label class="form-check-label" for="autoFillAddress">
+                                Isi alamat otomatis berdasarkan lokasi yang dipilih
+                            </label>
                         </div>
                     </div>
-                    <div id="osmMap" style="height: 500px; width: 100%;"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -509,8 +537,22 @@
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Leaflet Geocoder -->
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize toasts
+            const toastElList = [].slice.call(document.querySelectorAll('.toast'))
+            const toastList = toastElList.map(function(toastEl) {
+                return new bootstrap.Toast(toastEl, {
+                    autohide: true,
+                    delay: 5000
+                })
+            });
+            toastList.forEach(toast => toast.show());
+
             // Edit Location Button Handler
             const editButtons = document.querySelectorAll('.edit-location');
             editButtons.forEach(button => {
@@ -521,7 +563,7 @@
                     const longitude = this.getAttribute('data-longitude');
                     const radius = this.getAttribute('data-radius');
                     const alamat = this.getAttribute('data-alamat');
-                    const is_active = this.getAttribute('data-is_active') === '1';
+                    const is_active = this.getAttribute('data-is_active') === 'enable';
 
                     document.getElementById('editName').value = name;
                     document.getElementById('editAlamat').value = alamat || '';
@@ -529,6 +571,7 @@
                     document.getElementById('editLongitude').value = longitude;
                     document.getElementById('editRadius').value = radius;
                     document.getElementById('editIsActive').checked = is_active;
+                    document.getElementById('editLocationSearchInput').value = alamat || '';
 
                     // Set form action URL
                     document.getElementById('editLocationForm').action = `/atur-absen/${id}`;
@@ -555,155 +598,217 @@
                 });
             });
 
-            // Handler untuk tombol pilih lokasi di modal tambah
-            document.getElementById('pickLocation').addEventListener('click', function() {
+            // Map functionality
+            let map, marker, circle, currentForm = null;
+            let geocoder = L.Control.Geocoder.nominatim();
+
+            function initOSMMap() {
+                if (map) return;
+
+                map = L.map('osmMap').setView([-7.2575, 112.7521], 13); // Default to Surabaya
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+
+                // Add geocoder control
+                L.Control.geocoder({
+                    defaultMarkGeocode: false,
+                    position: 'topright',
+                    placeholder: 'Cari lokasi...',
+                    errorMessage: 'Lokasi tidak ditemukan',
+                    geocoder: geocoder
+                }).on('markgeocode', function(e) {
+                    const center = e.geocode.center;
+                    map.setView(center, 16);
+                    updateMarkerPosition(center);
+                    if (document.getElementById('autoFillAddress').checked) {
+                        updateAddressField(e.geocode.name);
+                    }
+                }).addTo(map);
+
+                // Create marker with custom icon
+                const markerIcon = L.divIcon({
+                    className: 'location-marker',
+                    iconSize: [26, 26]
+                });
+
+                marker = L.marker(map.getCenter(), {
+                    draggable: true,
+                    icon: markerIcon
+                }).addTo(map);
+
+                // Create circle
+                circle = L.circle(map.getCenter(), {
+                    radius: 100,
+                    className: 'radius-circle'
+                }).addTo(map);
+
+                // Event listeners
+                marker.on('dragend', function() {
+                    updateCirclePosition();
+                    if (document.getElementById('autoFillAddress').checked) {
+                        reverseGeocode(marker.getLatLng());
+                    }
+                });
+
+                map.on('click', function(e) {
+                    marker.setLatLng(e.latlng);
+                    updateCirclePosition();
+                    if (document.getElementById('autoFillAddress').checked) {
+                        reverseGeocode(e.latlng);
+                    }
+                });
+
+                // Update radius when input changes
+                document.getElementById('radius')?.addEventListener('input', updateCirclePosition);
+                document.getElementById('editRadius')?.addEventListener('input', updateCirclePosition);
+            }
+
+            function updateMarkerPosition(latlng) {
+                marker.setLatLng(latlng);
+                updateCirclePosition();
+            }
+
+            function updateCirclePosition() {
+                const radius = currentForm === 'edit' ?
+                    parseInt(document.getElementById('editRadius').value) || 100 :
+                    parseInt(document.getElementById('radius').value) || 100;
+
+                circle.setLatLng(marker.getLatLng());
+                circle.setRadius(radius);
+            }
+
+            function updateAddressField(address) {
+                const addressInput = currentForm === 'edit' ?
+                    document.getElementById('editAlamat') :
+                    document.getElementById('alamat');
+                addressInput.value = address;
+            }
+
+            function reverseGeocode(latlng) {
+                geocoder.reverse(latlng, map.options.crs.scale(map.getZoom()), results => {
+                    if (results && results.length > 0) {
+                        updateAddressField(results[0].name);
+                    }
+                });
+            }
+
+            // Show map modal
+            document.getElementById('pickLocation')?.addEventListener('click', showMapModal);
+            document.getElementById('editPickLocation')?.addEventListener('click', showMapModal);
+
+            function showMapModal() {
+                currentForm = this.id === 'pickLocation' ? 'add' : 'edit';
                 const mapModal = new bootstrap.Modal(document.getElementById('mapModal'));
                 mapModal.show();
-                currentModal = 'add';
 
-                // Inisialisasi peta saat modal terbuka
-                setTimeout(() => {
-                    if (!map) {
-                        initOSMMap();
-                    } else {
-                        map.invalidateSize();
+                // Initialize map when modal is shown
+                mapModal._element.addEventListener('shown.bs.modal', function() {
+                    initOSMMap();
+                    map.invalidateSize();
 
-                        // Jika sudah ada nilai, set posisi awal
-                        const lat = parseFloat(document.getElementById('latitude').value) || -
-                        2.5489;
-                        const lng = parseFloat(document.getElementById('longitude').value) ||
-                            118.0149;
-                        const initialPos = L.latLng(lat, lng);
-                        map.setView(initialPos, 16);
-                        marker.setLatLng(initialPos);
-                    }
-                }, 500);
+                    // Set initial position based on form values
+                    const latInput = document.getElementById(currentForm === 'edit' ? 'editLatitude' :
+                        'latitude');
+                    const lngInput = document.getElementById(currentForm === 'edit' ? 'editLongitude' :
+                        'longitude');
+                    const radiusInput = document.getElementById(currentForm === 'edit' ? 'editRadius' :
+                        'radius');
+
+                    const lat = latInput.value ? parseFloat(latInput.value) : -7.2575;
+                    const lng = lngInput.value ? parseFloat(lngInput.value) : 112.7521;
+                    const radius = radiusInput.value ? parseInt(radiusInput.value) : 100;
+
+                    const initialPos = L.latLng(lat, lng);
+                    map.setView(initialPos, 16);
+                    marker.setLatLng(initialPos);
+                    circle.setLatLng(initialPos);
+                    circle.setRadius(radius);
+                });
+            }
+
+            // Confirm location selection
+            document.getElementById('confirmLocation')?.addEventListener('click', function() {
+                const latLng = marker.getLatLng();
+                const lat = latLng.lat.toFixed(8);
+                const lng = latLng.lng.toFixed(8);
+
+                if (currentForm === 'edit') {
+                    document.getElementById('editLatitude').value = lat;
+                    document.getElementById('editLongitude').value = lng;
+                } else {
+                    document.getElementById('latitude').value = lat;
+                    document.getElementById('longitude').value = lng;
+                }
+
+                bootstrap.Modal.getInstance(document.getElementById('mapModal')).hide();
             });
 
-            // Handler untuk tombol pilih lokasi di modal edit
-            document.getElementById('editPickLocation').addEventListener('click', function() {
-                const mapModal = new bootstrap.Modal(document.getElementById('mapModal'));
-                mapModal.show();
-                currentModal = 'edit';
-
-                // Inisialisasi peta dengan nilai dari form edit
-                setTimeout(() => {
-                    if (!map) {
-                        initOSMMap();
-                    } else {
-                        map.invalidateSize();
-                        const lat = parseFloat(document.getElementById('editLatitude').value) || -
-                            2.5489;
-                        const lng = parseFloat(document.getElementById('editLongitude').value) ||
-                            118.0149;
-                        const initialPos = L.latLng(lat, lng);
-                        map.setView(initialPos, 16);
-                        marker.setLatLng(initialPos);
-                    }
-                }, 500);
-            });
-        });
-
-        // Variabel global untuk peta dan modal
-        let map;
-        let marker;
-        let currentModal = 'add'; // 'add' atau 'edit'
-        let lastSearchTime = 0;
-
-        function initOSMMap() {
-            // Inisialisasi peta dengan view Indonesia
-            map = L.map('osmMap').setView([-2.5489, 118.0149], 5);
-
-            // Tambahkan tile layer OpenStreetMap
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-
-            // Tambahkan marker
-            marker = L.marker(map.getCenter(), {
-                draggable: true
-            }).addTo(map);
-
-            // Event ketika marker dipindahkan
-            marker.on('dragend', function() {
-                updateFormFields(marker.getLatLng());
-            });
-
-            // Event ketika peta diklik
-            map.on('click', function(e) {
-                marker.setLatLng(e.latlng);
-                updateFormFields(e.latlng);
-            });
-
-            // Geocoding dengan Nominatim
-            document.getElementById('locationSearch').addEventListener('keypress', function(e) {
+            // Search location from main modal
+            document.getElementById('locationSearchInput')?.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    const query = this.value.trim();
-
-                    // Rate limiting - minimal 1 detik antara pencarian
-                    const now = Date.now();
-                    if (now - lastSearchTime < 1000) {
-                        return;
-                    }
-                    lastSearchTime = now;
-
-                    if (query.length > 3) {
-                        showLoading(true);
-                        fetch(
-                                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`
-                            )
-                            .then(response => response.json())
-                            .then(data => {
-                                showLoading(false);
-                                if (data && data.length > 0) {
-                                    const lat = parseFloat(data[0].lat);
-                                    const lon = parseFloat(data[0].lon);
-                                    const newLatLng = L.latLng(lat, lon);
-                                    marker.setLatLng(newLatLng);
-                                    map.setView(newLatLng, 16);
-                                    updateFormFields(newLatLng);
-                                }
-                            })
-                            .catch(error => {
-                                showLoading(false);
-                                console.error('Error searching location:', error);
-                            });
-                    }
+                    searchLocation(this.value, 'add');
                 }
             });
 
-            // Handler untuk tombol konfirmasi lokasi
-            document.getElementById('confirmLocation').addEventListener('click', function() {
-                bootstrap.Modal.getInstance(document.getElementById('mapModal')).hide();
+            document.getElementById('editLocationSearchInput')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    searchLocation(this.value, 'edit');
+                }
             });
-        }
 
-        function updateFormFields(latlng) {
-            const prefix = currentModal === 'edit' ? 'edit' : '';
-            document.getElementById(`${prefix}Latitude`).value = latlng.lat.toFixed(8);
-            document.getElementById(`${prefix}Longitude`).value = latlng.lng.toFixed(8);
+            function searchLocation(query, formType) {
+                if (!query) return;
 
-            // Reverse geocoding untuk mendapatkan alamat
-            showLoading(true);
-            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}`)
-                .then(response => response.json())
-                .then(data => {
-                    showLoading(false);
-                    if (data.display_name) {
-                        document.getElementById(`${prefix}Alamat`).value = data.display_name;
+                geocoder.geocode(query, results => {
+                    if (results && results.length > 0) {
+                        const firstResult = results[0];
+                        const latLng = firstResult.center;
+
+                        if (formType === 'edit') {
+                            document.getElementById('editLatitude').value = latLng.lat.toFixed(8);
+                            document.getElementById('editLongitude').value = latLng.lng.toFixed(8);
+                            document.getElementById('editAlamat').value = firstResult.name;
+                        } else {
+                            document.getElementById('latitude').value = latLng.lat.toFixed(8);
+                            document.getElementById('longitude').value = latLng.lng.toFixed(8);
+                            document.getElementById('alamat').value = firstResult.name;
+                        }
+
+                        // If map is open, update marker position
+                        if (map) {
+                            map.setView(latLng, 16);
+                            marker.setLatLng(latLng);
+                            updateCirclePosition();
+                        }
                     }
-                })
-                .catch(error => {
-                    showLoading(false);
-                    console.error('Error reverse geocoding:', error);
                 });
-        }
+            }
 
-        function showLoading(show) {
-            const loadingElement = document.getElementById('searchLoading');
-            loadingElement.style.display = show ? 'block' : 'none';
-        }
+            // Form validation
+            document.getElementById('addLocationForm')?.addEventListener('submit', function(e) {
+                const lat = parseFloat(document.getElementById('latitude').value);
+                const lng = parseFloat(document.getElementById('longitude').value);
+
+                if (isNaN(lat) || isNaN(lng)) {
+                    e.preventDefault();
+                    alert('Silakan pilih lokasi di peta terlebih dahulu');
+                }
+            });
+
+            document.getElementById('editLocationForm')?.addEventListener('submit', function(e) {
+                const lat = parseFloat(document.getElementById('editLatitude').value);
+                const lng = parseFloat(document.getElementById('editLongitude').value);
+
+                if (isNaN(lat) || isNaN(lng)) {
+                    e.preventDefault();
+                    alert('Silakan pilih lokasi di peta terlebih dahulu');
+                }
+            });
+        });
     </script>
 </body>
 

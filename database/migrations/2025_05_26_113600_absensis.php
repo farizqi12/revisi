@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('lokasis', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // Nama lokasi (contoh: Kantor Pusat, Klien A, dll)
-            $table->decimal('latitude', 10, 8); // Koordinat latitude
-            $table->decimal('longitude', 10, 8); // Koordinat longitude
+            $table->string('name')->unique(); // Nama lokasi (unique)
+            $table->decimal('latitude', 10, 8); // Koordinat latitude dengan presisi 8 digit
+            $table->decimal('longitude', 11, 8); // Koordinat longitude dengan presisi 8 digit
             $table->integer('radius')->default(100); // Radius dalam meter
             $table->text('alamat')->nullable(); // Alamat lengkap
-            $table->boolean('is_active')->default(true);
+            $table->enum('is_active', ['disable', 'enable'])->default('enable'); // Status aktif
             $table->timestamps();
         });
 

@@ -20,13 +20,6 @@ class Lokasi extends Model
         'is_active',
     ];
 
-    protected $casts = [
-        'latitude' => 'float',
-        'longitude' => 'float',
-        'radius' => 'integer',
-        'is_active' => 'boolean',
-    ];
-
     // Relasi: satu lokasi memiliki banyak absensi
     public function absensis()
     {
