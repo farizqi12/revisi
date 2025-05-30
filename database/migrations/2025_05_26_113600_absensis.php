@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('lokasis', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique(); // Nama lokasi (unique)
+            $table->enum('type', ['sekolah', 'dinas-luar']);
             $table->decimal('latitude', 10, 8); // Koordinat latitude dengan presisi 8 digit
             $table->decimal('longitude', 11, 8); // Koordinat longitude dengan presisi 8 digit
             $table->integer('radius')->default(100); // Radius dalam meter
             $table->text('alamat')->nullable(); // Alamat lengkap
-            $table->enum('is_active', ['disable', 'enable'])->default('enable'); // Status aktif
+            $table->enum('status', ['disable', 'enable']);
             $table->timestamps();
         });
 
@@ -26,12 +27,10 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id'); // Foreign key harus sesuai dengan users.id
             $table->unsignedBigInteger('lokasi_id'); // Foreign key ke tabel lokasis
-            $table->enum('type', ['in', 'out', 'dinas luar', 'izin', 'sakit']);
+            $table->enum('type', ['masuk', 'pulang', 'izin', 'sakit']);
             $table->decimal('latitude', 10, 8); // Lokasi saat absen
             $table->decimal('longitude', 10, 8); // Lokasi saat absen
             $table->string('address')->nullable(); // Alamat hasil reverse geocoding
-            $table->integer('distance')->nullable(); // Jarak dari lokasi yang ditentukan (dalam meter)
-            $table->boolean('is_approved')->default(false); // Untuk absen dinas luar kota
             $table->text('notes')->nullable();
             $table->timestamps();
 

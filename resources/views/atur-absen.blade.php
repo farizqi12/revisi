@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Animate.css -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root {
             --primary-gradient: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
@@ -157,6 +159,31 @@
             transition: all 0.3s;
         }
 
+        /* Map Container */
+        #osmMap {
+            height: 500px;
+            width: 100%;
+            border-radius: 10px;
+            z-index: 0;
+        }
+
+        .location-marker {
+            background-color: var(--primary-light);
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            cursor: move;
+        }
+
+        .radius-circle {
+            stroke: var(--primary-light);
+            stroke-width: 2;
+            fill: rgba(102, 126, 234, 0.2);
+            pointer-events: none;
+        }
+
         .table tbody tr:hover {
             background-color: rgba(102, 126, 234, 0.1);
         }
@@ -168,6 +195,16 @@
 
         .badge-inactive {
             background-color: #e74c3c;
+            color: white;
+        }
+
+        .badge-sekolah {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .badge-dinas-luar {
+            background-color: #f59e0b;
             color: white;
         }
 
@@ -269,7 +306,6 @@
     </nav>
 
     <!-- Main Content -->
-    <!-- Main Content -->
     <div class="main-container animate__animated animate__fadeIn">
         <!-- Toast notifications -->
         <div class="toast-container">
@@ -300,6 +336,7 @@
             @endif
         </div>
 
+        <!-- Card Daftar Lokasi -->
         <div class="card">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="card-title">
@@ -316,6 +353,7 @@
                         <tr>
                             <th>#</th>
                             <th>Nama Lokasi</th>
+                            <th>Tipe</th>
                             <th>Alamat</th>
                             <th>Koordinat</th>
                             <th>Radius (m)</th>
@@ -328,21 +366,28 @@
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $lokasi->name }}</td>
+                                <td>
+                                    <span
+                                        class="badge {{ $lokasi->type === 'sekolah' ? 'badge-sekolah' : 'badge-dinas-luar' }}">
+                                        {{ $lokasi->type === 'sekolah' ? 'Sekolah' : 'Dinas Luar' }}
+                                    </span>
+                                </td>
                                 <td>{{ $lokasi->alamat ?? '-' }}</td>
                                 <td>{{ number_format($lokasi->latitude, 6) }},
                                     {{ number_format($lokasi->longitude, 6) }}</td>
                                 <td>{{ $lokasi->radius }}</td>
                                 <td>
                                     <span
-                                        class="badge {{ $lokasi->is_active === 'enable' ? 'badge-active' : 'badge-inactive' }}">
-                                        {{ $lokasi->is_active === 'enable' ? 'Aktif' : 'Nonaktif' }}
+                                        class="badge {{ $lokasi->status === 'enable' ? 'badge-active' : 'badge-inactive' }}">
+                                        {{ $lokasi->status === 'enable' ? 'Aktif' : 'Nonaktif' }}
                                     </span>
                                 </td>
                                 <td>
                                     <button class="btn btn-sm btn-primary edit-location" data-id="{{ $lokasi->id }}"
-                                        data-name="{{ $lokasi->name }}" data-latitude="{{ $lokasi->latitude }}"
+                                        data-name="{{ $lokasi->name }}" data-type="{{ $lokasi->type }}"
+                                        data-latitude="{{ $lokasi->latitude }}"
                                         data-longitude="{{ $lokasi->longitude }}" data-radius="{{ $lokasi->radius }}"
-                                        data-alamat="{{ $lokasi->alamat }}" data-is_active="{{ $lokasi->is_active }}">
+                                        data-alamat="{{ $lokasi->alamat }}" data-status="{{ $lokasi->status }}">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button class="btn btn-sm btn-danger delete-location"
@@ -358,7 +403,7 @@
         </div>
     </div>
 
-    <!-- Add Location Modal -->
+    <!-- Modal Tambah Lokasi -->
     <div class="modal fade" id="addLocationModal" tabindex="-1" aria-labelledby="addLocationModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
@@ -375,6 +420,13 @@
                             <input type="text" class="form-control" id="name" name="name" required>
                         </div>
                         <div class="mb-3">
+                            <label for="type" class="form-label">Tipe Lokasi</label>
+                            <select class="form-select" id="type" name="type" required>
+                                <option value="sekolah">Sekolah</option>
+                                <option value="dinas-luar">Dinas Luar</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label for="alamat" class="form-label">Alamat Lengkap</label>
                             <textarea class="form-control" id="alamat" name="alamat" rows="2"></textarea>
                         </div>
@@ -383,7 +435,7 @@
                             <div class="input-group">
                                 <input type="text" class="form-control" id="locationSearchInput"
                                     placeholder="Cari lokasi...">
-                                <button class="btn btn-outline-secondary" type="button" id="pickLocation">
+                                <button class="btn btn-outline-secondary" type="button" id="pickLocationBtn">
                                     <i class="fas fa-map-marker-alt"></i> Pilih dari Peta
                                 </button>
                             </div>
@@ -406,9 +458,12 @@
                                 min="10" max="1000" required>
                             <small class="text-muted">Minimal 10 meter, maksimal 1000 meter</small>
                         </div>
-                        <div class="mb-3 form-check form-switch">
-                            <input type="checkbox" class="form-check-input" id="is_active" name="is_active" checked>
-                            <label class="form-check-label" for="is_active">Aktifkan Lokasi</label>
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="enable">Aktif</option>
+                                <option value="disable">Nonaktif</option>
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -420,7 +475,7 @@
         </div>
     </div>
 
-    <!-- Edit Location Modal -->
+    <!-- Modal Edit Lokasi -->
     <div class="modal fade" id="editLocationModal" tabindex="-1" aria-labelledby="editLocationModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
@@ -438,6 +493,13 @@
                             <input type="text" class="form-control" id="editName" name="name" required>
                         </div>
                         <div class="mb-3">
+                            <label for="editType" class="form-label">Tipe Lokasi</label>
+                            <select class="form-select" id="editType" name="type" required>
+                                <option value="sekolah">Sekolah</option>
+                                <option value="dinas-luar">Dinas Luar</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label for="editAlamat" class="form-label">Alamat Lengkap</label>
                             <textarea class="form-control" id="editAlamat" name="alamat" rows="2"></textarea>
                         </div>
@@ -446,7 +508,7 @@
                             <div class="input-group">
                                 <input type="text" class="form-control" id="editLocationSearchInput"
                                     placeholder="Cari lokasi...">
-                                <button class="btn btn-outline-secondary" type="button" id="editPickLocation">
+                                <button class="btn btn-outline-secondary" type="button" id="editPickLocationBtn">
                                     <i class="fas fa-map-marker-alt"></i> Pilih dari Peta
                                 </button>
                             </div>
@@ -469,9 +531,12 @@
                                 min="10" max="1000" required>
                             <small class="text-muted">Minimal 10 meter, maksimal 1000 meter</small>
                         </div>
-                        <div class="mb-3 form-check form-switch">
-                            <input type="checkbox" class="form-check-input" id="editIsActive" name="is_active">
-                            <label class="form-check-label" for="editIsActive">Aktifkan Lokasi</label>
+                        <div class="mb-3">
+                            <label for="editStatus" class="form-label">Status</label>
+                            <select class="form-select" id="editStatus" name="status" required>
+                                <option value="enable">Aktif</option>
+                                <option value="disable">Nonaktif</option>
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -483,7 +548,7 @@
         </div>
     </div>
 
-    <!-- Delete Location Modal -->
+    <!-- Modal Hapus Lokasi -->
     <div class="modal fade" id="deleteLocationModal" tabindex="-1" aria-labelledby="deleteLocationModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
@@ -508,7 +573,7 @@
         </div>
     </div>
 
-    <!-- Map Modal -->
+    <!-- Modal Peta OpenStreetMap -->
     <div class="modal fade" id="mapModal" tabindex="-1" aria-labelledby="mapModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -529,7 +594,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-primary" id="confirmLocation">Konfirmasi Lokasi</button>
+                    <button type="button" class="btn btn-primary" id="confirmLocationBtn">Konfirmasi Lokasi</button>
                 </div>
             </div>
         </div>
@@ -559,18 +624,20 @@
                 button.addEventListener('click', function() {
                     const id = this.getAttribute('data-id');
                     const name = this.getAttribute('data-name');
+                    const type = this.getAttribute('data-type');
                     const latitude = this.getAttribute('data-latitude');
                     const longitude = this.getAttribute('data-longitude');
                     const radius = this.getAttribute('data-radius');
                     const alamat = this.getAttribute('data-alamat');
-                    const is_active = this.getAttribute('data-is_active') === 'enable';
+                    const status = this.getAttribute('data-status');
 
                     document.getElementById('editName').value = name;
+                    document.getElementById('editType').value = type;
                     document.getElementById('editAlamat').value = alamat || '';
                     document.getElementById('editLatitude').value = latitude;
                     document.getElementById('editLongitude').value = longitude;
                     document.getElementById('editRadius').value = radius;
-                    document.getElementById('editIsActive').checked = is_active;
+                    document.getElementById('editStatus').value = status;
                     document.getElementById('editLocationSearchInput').value = alamat || '';
 
                     // Set form action URL
@@ -602,11 +669,18 @@
             let map, marker, circle, currentForm = null;
             let geocoder = L.Control.Geocoder.nominatim();
 
+            // Initialize OpenStreetMap
             function initOSMMap() {
                 if (map) return;
 
-                map = L.map('osmMap').setView([-7.2575, 112.7521], 13); // Default to Surabaya
+                // Default to Surabaya coordinates
+                const defaultLat = -7.2575;
+                const defaultLng = 112.7521;
+                const defaultZoom = 13;
 
+                map = L.map('osmMap').setView([defaultLat, defaultLng], defaultZoom);
+
+                // Add OpenStreetMap tiles
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 }).addTo(map);
@@ -694,12 +768,12 @@
                 });
             }
 
-            // Show map modal
-            document.getElementById('pickLocation')?.addEventListener('click', showMapModal);
-            document.getElementById('editPickLocation')?.addEventListener('click', showMapModal);
+            // Show map modal when pick location button is clicked
+            document.getElementById('pickLocationBtn')?.addEventListener('click', showMapModal);
+            document.getElementById('editPickLocationBtn')?.addEventListener('click', showMapModal);
 
             function showMapModal() {
-                currentForm = this.id === 'pickLocation' ? 'add' : 'edit';
+                currentForm = this.id === 'pickLocationBtn' ? 'add' : 'edit';
                 const mapModal = new bootstrap.Modal(document.getElementById('mapModal'));
                 mapModal.show();
 
@@ -729,7 +803,7 @@
             }
 
             // Confirm location selection
-            document.getElementById('confirmLocation')?.addEventListener('click', function() {
+            document.getElementById('confirmLocationBtn')?.addEventListener('click', function() {
                 const latLng = marker.getLatLng();
                 const lat = latLng.lat.toFixed(8);
                 const lng = latLng.lng.toFixed(8);
@@ -745,7 +819,7 @@
                 bootstrap.Modal.getInstance(document.getElementById('mapModal')).hide();
             });
 
-            // Search location from main modal
+            // Search location from input field
             document.getElementById('locationSearchInput')?.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();

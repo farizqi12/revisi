@@ -13,11 +13,12 @@ class Lokasi extends Model
 
     protected $fillable = [
         'name',
+        'type',
         'latitude',
         'longitude',
         'radius',
         'alamat',
-        'is_active',
+        'status'
     ];
 
     // Relasi: satu lokasi memiliki banyak absensi

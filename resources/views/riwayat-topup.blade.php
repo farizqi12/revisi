@@ -272,7 +272,7 @@
 </head>
 
 <body>
-    <!-- Navbar -->
+    <!-- Navbar-guru -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="/dashboard-guru">
@@ -286,16 +286,17 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="#">
-                            <i class="fas fa-user"></i> Profil Saya </a>
+                            <i class="fas fa-user"></i> Profil Saya
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="/riwayat-topup">
+                        <a class="nav-link" href="/riwayat-topup">
                             <i class="fas fa-history"></i> Riwayat Transaksi
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-calendar-check"></i> Pantau Absen
+                        <a class="nav-link" href="/riwayat-absensi">
+                            <i class="fas fa-clipboard-list"></i> Riwayat Absensi
                         </a>
                     </li>
                 </ul>

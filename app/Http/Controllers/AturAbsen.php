@@ -12,7 +12,7 @@ class AturAbsen extends Controller
 {
     public function show()
     {
-        $lokasis = Lokasi::orderBy('is_active', 'desc')
+        $lokasis = Lokasi::orderBy('status', 'desc')
             ->orderBy('name')
             ->get();
 
@@ -23,6 +23,7 @@ class AturAbsen extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:lokasis,name',
+            'type' => 'required|in:sekolah,dinas-luar',
             'alamat' => 'nullable|string',
             'latitude' => [
                 'required',
@@ -45,13 +46,15 @@ class AturAbsen extends Controller
                 }
             ],
             'radius' => 'required|integer|min:10|max:1000',
-            'is_active' => 'boolean',
+            'status' => 'required|in:disable,enable',
         ], [
             'name.unique' => 'Nama lokasi sudah digunakan',
+            'type.in' => 'Tipe lokasi harus sekolah atau dinas-luar',
             'latitude.between' => 'Latitude harus antara -90 dan 90 derajat',
             'longitude.between' => 'Longitude harus antara -180 dan 180 derajat',
             'radius.min' => 'Radius minimal 10 meter',
             'radius.max' => 'Radius maksimal 1000 meter',
+            'status.in' => 'Status harus disable atau enable',
         ]);
 
         if ($validator->fails()) {
@@ -64,11 +67,12 @@ class AturAbsen extends Controller
         try {
             $lokasi = Lokasi::create([
                 'name' => $request->name,
+                'type' => $request->type,
                 'alamat' => $request->alamat,
                 'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
                 'radius' => $request->radius,
-                'is_active' => $request->has('is_active') ? 'enable' : 'disable'
+                'status' => $request->status
             ]);
 
             return redirect()->route('atur.absen')
@@ -85,6 +89,7 @@ class AturAbsen extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:lokasis,name,' . $id,
+            'type' => 'required|in:sekolah,dinas-luar',
             'alamat' => 'nullable|string',
             'latitude' => [
                 'required',
@@ -107,7 +112,7 @@ class AturAbsen extends Controller
                 }
             ],
             'radius' => 'required|integer|min:10|max:1000',
-            'is_active' => 'boolean',
+            'status' => 'required|in:disable,enable',
         ]);
 
         if ($validator->fails()) {
@@ -120,11 +125,12 @@ class AturAbsen extends Controller
             $lokasi = Lokasi::findOrFail($id);
             $lokasi->update([
                 'name' => $request->name,
+                'type' => $request->type,
                 'alamat' => $request->alamat,
                 'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
                 'radius' => $request->radius,
-                'is_active' => $request->has('is_active') ? 'enable' : 'disable'
+                'status' => $request->status
             ]);
 
             return redirect()->route('atur.absen')

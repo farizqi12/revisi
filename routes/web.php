@@ -6,6 +6,7 @@ use App\Http\Controllers\ManageUser;
 use App\Http\Controllers\Topup;
 use App\Http\Controllers\KelolaTransaksi;
 use App\Http\Controllers\AturAbsen;
+use App\Http\Controllers\Profil;
 
 Route::get("/", [App\Http\Controllers\LoginController::class, "showLoginForm"])->name("login");
 Route::post("/login", [App\Http\Controllers\LoginController::class, "login"])->name("login.post");
@@ -44,4 +45,6 @@ Route::middleware(['auth', 'only.guru'])->group(function () {
     Route::get('/topup-penarikan', [Topup::class, 'showPenarikan'])->name('topup.penarikan');
     Route::post('/withdraw-store', [Topup::class, 'withdraw'])->name('withdrawal.store');
     Route::get('/riwayat-topup', [Topup::class, 'showriwayat'])->name('riwayat.topup');
+
+    Route::get('/profil', [Profil::class, 'show'])->name('profil.show');
 });

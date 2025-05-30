@@ -97,7 +97,7 @@ class KelolaTransaksi extends Controller
 
         $transaksis = $query->orderBy('created_at', 'desc')->paginate(10);
 
-        return view('admin.kelola-transaksi', [
+        return view('kelola-transaksi', [
             'transaksis' => $transaksis,
             'users' => User::all(),
             'old_input' => $request->all(),
