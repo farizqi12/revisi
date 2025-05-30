@@ -239,8 +239,8 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="/user-manage">
-                            <i class="fas fa-user"></i> Kelola Pengguna </a>
+                        <a class="nav-link" href="/user-manage">
+                        <i class="fas fa-user"></i> Kelola Pengguna </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/kelola-transaksi">
@@ -252,8 +252,8 @@
                             <i class="fas fa-calendar-check me-1"></i> Pantau Absen
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
+                     <li class="nav-item">
+                        <a class="nav-link" href="/atur-absen">
                             <i class="fa-solid fa-location-crosshairs"></i> Atur Lokasi Absen
                         </a>
                     </li>
@@ -490,7 +490,7 @@
     </div>
 
     <!-- Panggil Komponen Loading Modal -->
-    <x-loading-modal />
+    <x-loading-modal></x-loading-modal>
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -563,6 +563,35 @@
                         'deleteUserModal'));
                     deleteModal.show();
                 });
+            });
+            document.querySelectorAll('a[href^="/"]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Abaikan jika target blank atau anchor link
+                    if (this.target === '_blank' || this.href.includes('#')) return;
+
+                    // Abaikan jika Ctrl atau Cmd diklik (untuk buka tab baru)
+                    if (e.ctrlKey || e.metaKey) return;
+
+                    e.preventDefault();
+                    showLoading('Memuat halaman...');
+
+                    // Redirect setelah sedikit delay untuk memastikan modal muncul
+                    setTimeout(() => {
+                        window.location.href = this.href;
+                    }, 100);
+                });
+            });
+
+            // Tangkap semua form submission
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function() {
+                    showLoading('Memproses...');
+                });
+            });
+
+            // Tangkap event sebelum unload (navigasi atau refresh)
+            window.addEventListener('beforeunload', function() {
+                showLoading('Memuat...');
             });
         });
     </script>

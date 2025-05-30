@@ -205,6 +205,8 @@
         </div>
     </div>
 
+    <x-loading-modal></x-loading-modal>
+
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -226,6 +228,35 @@
 
             animateElements.forEach(element => {
                 observer.observe(element);
+            });
+             document.querySelectorAll('a[href^="/"]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Abaikan jika target blank atau anchor link
+                    if (this.target === '_blank' || this.href.includes('#')) return;
+
+                    // Abaikan jika Ctrl atau Cmd diklik (untuk buka tab baru)
+                    if (e.ctrlKey || e.metaKey) return;
+
+                    e.preventDefault();
+                    showLoading('Memuat halaman...');
+
+                    // Redirect setelah sedikit delay untuk memastikan modal muncul
+                    setTimeout(() => {
+                        window.location.href = this.href;
+                    }, 100);
+                });
+            });
+
+            // Tangkap semua form submission
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function() {
+                    showLoading('Memproses...');
+                });
+            });
+
+            // Tangkap event sebelum unload (navigasi atau refresh)
+            window.addEventListener('beforeunload', function() {
+                showLoading('Memuat...');
             });
         });
     </script>
