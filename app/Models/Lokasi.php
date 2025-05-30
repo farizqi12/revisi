@@ -22,7 +22,7 @@ class Lokasi extends Model
     ];
 
     // Relasi: satu lokasi memiliki banyak absensi
-    public function absensis()
+    public function absensi()
     {
         return $this->hasMany(Absensi::class);
     }
