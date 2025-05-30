@@ -32,6 +32,8 @@ Route::middleware(['auth', 'only.kepala.sekolah'])->group(function () {
     Route::delete('/atur-absen/{id}', [AturAbsen::class, 'destroy'])->name('lokasi.destroy');
     Route::get('/search', [AturAbsen::class, 'searchLocation'])->name('lokasi.search');
     Route::get('/reverse-geocode', [AturAbsen::class, 'reverseGeocode'])->name('lokasi.reverse');
+
+    Route::get('/transaksi/{id}/invoice', [KelolaTransaksi::class, 'showInvoice'])->name('transaksi.invoice');
 });
 
 Route::middleware(['auth', 'only.guru'])->group(function () {

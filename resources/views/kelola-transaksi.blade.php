@@ -18,6 +18,83 @@
             --primary-dark: #764ba2;
         }
 
+        /* Invoice POS Styles */
+        .invoice-pos {
+            width: 80mm;
+            /* Lebar standar struk POS */
+            font-family: 'Courier New', monospace;
+            padding: 10px;
+            margin: 0 auto;
+            background: white;
+        }
+
+        .invoice-pos .header {
+            text-align: center;
+            margin-bottom: 10px;
+            border-bottom: 1px dashed #000;
+            padding-bottom: 10px;
+        }
+
+        .invoice-pos .title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .invoice-pos .subtitle {
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .invoice-pos .divider {
+            border-top: 1px dashed #000;
+            margin: 10px 0;
+        }
+
+        .invoice-pos .transaction-info {
+            margin-bottom: 10px;
+        }
+
+        .invoice-pos .transaction-info div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+
+        .invoice-pos .transaction-info .label {
+            font-weight: bold;
+        }
+
+        .invoice-pos .footer {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 10px;
+            border-top: 1px dashed #000;
+            padding-top: 10px;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #printArea,
+            #printArea * {
+                visibility: visible;
+            }
+
+            #printArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -136,6 +213,34 @@
         .btn-warning:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(241, 196, 15, 0.3);
+        }
+
+        @media print {
+            body * {
+                display: none !important;
+            }
+
+            body #printArea,
+            body #printArea * {
+                display: block !important;
+                visibility: visible !important;
+            }
+
+            #printArea {
+                position: fixed;
+                left: 0;
+                top: 0;
+                margin: 0;
+                padding: 10px;
+                width: 80mm;
+                height: auto;
+                background: white;
+                z-index: 9999;
+            }
+
+            .no-print {
+                display: none !important;
+            }
         }
 
         .btn-logout {
@@ -338,9 +443,11 @@
                             <label class="form-label">Status</label>
                             <select name="status" class="form-select">
                                 <option value="">Semua Status</option>
-                                <option value="menunggu" {{ request('status') == 'menunggu' ? 'selected' : '' }}>Menunggu
+                                <option value="menunggu" {{ request('status') == 'menunggu' ? 'selected' : '' }}>
+                                    Menunggu
                                 </option>
-                                <option value="diterima" {{ request('status') == 'diterima' ? 'selected' : '' }}>Diterima
+                                <option value="diterima" {{ request('status') == 'diterima' ? 'selected' : '' }}>
+                                    Diterima
                                 </option>
                                 <option value="ditolak" {{ request('status') == 'ditolak' ? 'selected' : '' }}>Ditolak
                                 </option>
@@ -352,7 +459,8 @@
                                 <option value="">Semua Jenis</option>
                                 <option value="setoran" {{ request('jenis') == 'setoran' ? 'selected' : '' }}>Setoran
                                 </option>
-                                <option value="penarikan" {{ request('jenis') == 'penarikan' ? 'selected' : '' }}>Penarikan
+                                <option value="penarikan" {{ request('jenis') == 'penarikan' ? 'selected' : '' }}>
+                                    Penarikan
                                 </option>
                             </select>
                         </div>
@@ -427,11 +535,18 @@
                                     <td>{{ Str::limit($transaksi->keterangan, 30) }}</td>
                                     <td>
                                         @if ($transaksi->status == 'menunggu')
-                                            <button class="btn btn-sm btn-success verify-btn" data-bs-toggle="modal" data-bs-target="#verifyModal" data-id="{{ $transaksi->id }}">
+                                            <button class="btn btn-sm btn-success verify-btn" data-bs-toggle="modal"
+                                                data-bs-target="#verifyModal" data-id="{{ $transaksi->id }}">
                                                 <i class="fas fa-check"></i> Terima
                                             </button>
-                                            <button class="btn btn-sm btn-danger reject-btn" data-bs-toggle="modal" data-bs-target="#rejectModal" data-id="{{ $transaksi->id }}">
+                                            <button class="btn btn-sm btn-danger reject-btn" data-bs-toggle="modal"
+                                                data-bs-target="#rejectModal" data-id="{{ $transaksi->id }}">
                                                 <i class="fas fa-times"></i> Tolak
+                                            </button>
+                                        @elseif($transaksi->status == 'diterima')
+                                            <button class="btn btn-sm btn-primary print-btn" data-bs-toggle="modal"
+                                                data-bs-target="#printModal" data-id="{{ $transaksi->id }}">
+                                                <i class="fas fa-print"></i> Cetak
                                             </button>
                                         @else
                                             <span class="text-muted">Tidak ada aksi</span>
@@ -451,6 +566,32 @@
         </div>
     </div>
 
+    <!-- Print Modal -->
+    <div class="modal fade" id="printModal" tabindex="-1" aria-labelledby="printModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="printModalLabel">Cetak Invoice Transaksi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="invoiceContent" class="p-3">
+                        <!-- Invoice content will be loaded here via AJAX -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-primary" onclick="printInvoice()">
+                        <i class="fas fa-print"></i> Cetak
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden div for printing -->
+    <div id="printArea" style="display:none;"></div>
+
     <!-- Verify Modal -->
     <div class="modal fade" id="verifyModal" tabindex="-1" aria-labelledby="verifyModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -459,7 +600,8 @@
                     <h5 class="modal-title" id="verifyModalLabel">Verifikasi Transaksi</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="verifyForm" method="POST" action="{{ route('admin.transaksi.update', ['id' => '__ID__']) }}">
+                <form id="verifyForm" method="POST"
+                    action="{{ route('admin.transaksi.update', ['id' => '__ID__']) }}">
                     @csrf
                     <input type="hidden" name="status" value="diterima">
                     <div class="modal-body">
@@ -482,7 +624,8 @@
                     <h5 class="modal-title" id="rejectModalLabel">Tolak Transaksi</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="rejectForm" method="POST" action="{{ route('admin.transaksi.update', ['id' => '__ID__']) }}">
+                <form id="rejectForm" method="POST"
+                    action="{{ route('admin.transaksi.update', ['id' => '__ID__']) }}">
                     @csrf
                     <input type="hidden" name="status" value="ditolak">
                     <div class="modal-body">
@@ -503,6 +646,84 @@
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Print Modal
+        const printModal = document.getElementById('printModal');
+        if (printModal) {
+            printModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const id = button.getAttribute('data-id');
+
+                // Load invoice content via AJAX
+                fetch(`/transaksi/${id}/invoice`)
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('invoiceContent').innerHTML = html;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('invoiceContent').innerHTML =
+                            '<div class="alert alert-danger">Gagal memuat data invoice</div>';
+                    });
+            });
+        }
+
+        // Print function
+        function printInvoice() {
+            const invoiceContent = document.getElementById('invoiceContent').innerHTML;
+            const printWindow = window.open('', '_blank');
+
+            printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Invoice Transaksi</title>
+            <style>
+                body { 
+                    font-family: 'Courier New', monospace;
+                    margin: 0;
+                    padding: 10px;
+                    width: 80mm;
+                }
+                .invoice-pos {
+                    width: 100%;
+                    padding: 5px;
+                }
+                .header {
+                    text-align: center;
+                    margin-bottom: 5px;
+                    border-bottom: 1px dashed #000;
+                    padding-bottom: 5px;
+                }
+                .divider {
+                    border-top: 1px dashed #000;
+                    margin: 5px 0;
+                }
+                .transaction-info div {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 2px;
+                }
+                .label {
+                    font-weight: bold;
+                }
+                @page {
+                    size: 80mm auto;
+                    margin: 0;
+                }
+            </style>
+        </head>
+        <body onload="window.print();window.close()">
+            ${invoiceContent}
+        </body>
+        </html>
+    `);
+            printWindow.document.close();
+
+            // Close modal after printing
+            const modal = bootstrap.Modal.getInstance(document.getElementById('printModal'));
+            modal.hide();
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Search functionality
             const searchInput = document.getElementById('searchInput');
@@ -542,4 +763,5 @@
         });
     </script>
 </body>
+
 </html>

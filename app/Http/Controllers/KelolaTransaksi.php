@@ -60,6 +60,12 @@ class KelolaTransaksi extends Controller
         return back()->with('success', 'Status transaksi berhasil diperbarui');
     }
 
+    public function showInvoice($id)
+    {
+        $transaksi = Transaksi::with(['tabungan.user'])->findOrFail($id);
+
+        return view('transaksi.invoice', compact('transaksi'));
+    }
     public function filter(Request $request)
     {
         $query = Transaksi::with(['tabungan.user']);
