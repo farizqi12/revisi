@@ -20,8 +20,8 @@ return new class extends Migration
             $table->integer('radius')->default(100); // Radius dalam meter
             $table->text('alamat')->nullable(); // Alamat lengkap
             $table->enum('status', ['disable', 'enable']);
-            $table->time('jam_masuk')->nullable(); // tanpa default
-            $table->time('jam_sampai')->nullable(); // tanpa default
+            $table->time('jam_masuk')->nullable();  //contoh jam 06:00:00
+            $table->time('jam_sampai')->nullable(); //contoh jam 09:00:00
             $table->timestamps();
         });
 

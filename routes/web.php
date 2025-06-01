@@ -47,4 +47,6 @@ Route::middleware(['auth', 'only.guru'])->group(function () {
     Route::get('/riwayat-topup', [Topup::class, 'showriwayat'])->name('riwayat.topup');
 
     Route::get('/profil', [Profil::class, 'show'])->name('profil.show');
+
+    route::get('/absensi', [App\Http\Controllers\Absen::class, 'show'])->name('absensi.show');
 });

@@ -525,7 +525,7 @@
             </div>
 
             <div class="action-grid mt-4">
-                <a href="/absen-masuk" class="action-btn btn-outline-success text-decoration-none">
+                <a href="/absensi" class="action-btn btn-outline-success text-decoration-none">
                     <i class="fas fa-fingerprint text-success"></i>
                     <span>Absen Masuk</span>
                 </a>
