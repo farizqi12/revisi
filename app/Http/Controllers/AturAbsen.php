@@ -122,7 +122,7 @@ class AturAbsen extends Controller
             'radius' => 'required|integer|min:10|max:1000',
             'status' => 'required|in:disable,enable',
             'jam_masuk' => 'nullable|date_format:H:i',
-            'jam_sampai' => 'nullable|date_format:H:i|after_or_equal:jam_masuk',
+            'jam_sampai' => 'nullable|date_format:H:i',
         ]);
 
         if ($validator->fails()) {

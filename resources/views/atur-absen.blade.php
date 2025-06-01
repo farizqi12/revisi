@@ -355,6 +355,8 @@
                             <th>Nama Lokasi</th>
                             <th>Tipe</th>
                             <th>Alamat</th>
+                            <th>Jam Masuk</th>
+                            <th>Jam Sampai</th>
                             <th>Koordinat</th>
                             <th>Radius (m)</th>
                             <th>Status</th>
@@ -373,8 +375,9 @@
                                     </span>
                                 </td>
                                 <td>{{ $lokasi->alamat ?? '-' }}</td>
-                                <td>{{ number_format($lokasi->latitude, 6) }},
-                                    {{ number_format($lokasi->longitude, 6) }}</td>
+                                <td>{{ $lokasi->jam_masuk ? \Carbon\Carbon::parse($lokasi->jam_masuk)->format('H:i') : '-' }}</td>
+                                <td>{{ $lokasi->jam_sampai ? \Carbon\Carbon::parse($lokasi->jam_sampai)->format('H:i') : '-' }}</td>
+                                <td>{{ number_format($lokasi->latitude, 6) }}, {{ number_format($lokasi->longitude, 6) }}</td>
                                 <td>{{ $lokasi->radius }}</td>
                                 <td>
                                     <span
@@ -387,7 +390,9 @@
                                         data-name="{{ $lokasi->name }}" data-type="{{ $lokasi->type }}"
                                         data-latitude="{{ $lokasi->latitude }}"
                                         data-longitude="{{ $lokasi->longitude }}" data-radius="{{ $lokasi->radius }}"
-                                        data-alamat="{{ $lokasi->alamat }}" data-status="{{ $lokasi->status }}">
+                                        data-alamat="{{ $lokasi->alamat }}" data-status="{{ $lokasi->status }}"
+                                        data-jam-masuk="{{ $lokasi->jam_masuk }}"
+                                        data-jam-sampai="{{ $lokasi->jam_sampai }}">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button class="btn btn-sm btn-danger delete-location"
@@ -429,6 +434,16 @@
                         <div class="mb-3">
                             <label for="alamat" class="form-label">Alamat Lengkap</label>
                             <textarea class="form-control" id="alamat" name="alamat" rows="2"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="jam_masuk" class="form-label">Jam Masuk</label>
+                                <input type="time" class="form-control" id="jam_masuk" name="jam_masuk">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="jam_sampai" class="form-label">Jam Sampai</label>
+                                <input type="time" class="form-control" id="jam_sampai" name="jam_sampai">
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Pilih Lokasi</label>
@@ -502,6 +517,16 @@
                         <div class="mb-3">
                             <label for="editAlamat" class="form-label">Alamat Lengkap</label>
                             <textarea class="form-control" id="editAlamat" name="alamat" rows="2"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="editJamMasuk" class="form-label">Jam Masuk</label>
+                                <input type="time" class="form-control" id="editJamMasuk" name="jam_masuk">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editJamSampai" class="form-label">Jam Sampai</label>
+                                <input type="time" class="form-control" id="editJamSampai" name="jam_sampai">
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Pilih Lokasi</label>
@@ -630,6 +655,8 @@
                     const radius = this.getAttribute('data-radius');
                     const alamat = this.getAttribute('data-alamat');
                     const status = this.getAttribute('data-status');
+                    const jamMasuk = this.getAttribute('data-jam-masuk');
+                    const jamSampai = this.getAttribute('data-jam-sampai');
 
                     document.getElementById('editName').value = name;
                     document.getElementById('editType').value = type;
@@ -639,6 +666,8 @@
                     document.getElementById('editRadius').value = radius;
                     document.getElementById('editStatus').value = status;
                     document.getElementById('editLocationSearchInput').value = alamat || '';
+                    document.getElementById('editJamMasuk').value = jamMasuk || '';
+                    document.getElementById('editJamSampai').value = jamSampai || '';
 
                     // Set form action URL
                     document.getElementById('editLocationForm').action = `/atur-absen/${id}`;
