@@ -47,6 +47,9 @@ class AturAbsen extends Controller
             ],
             'radius' => 'required|integer|min:10|max:1000',
             'status' => 'required|in:disable,enable',
+            'jam_masuk' => 'nullable|date_format:H:i',
+            'jam_sampai' => 'nullable|date_format:H:i|after_or_equal:jam_masuk',
+
         ], [
             'name.unique' => 'Nama lokasi sudah digunakan',
             'type.in' => 'Tipe lokasi harus sekolah atau dinas-luar',
@@ -55,6 +58,9 @@ class AturAbsen extends Controller
             'radius.min' => 'Radius minimal 10 meter',
             'radius.max' => 'Radius maksimal 1000 meter',
             'status.in' => 'Status harus disable atau enable',
+            'jam_masuk.date_format' => 'Format jam masuk tidak valid (HH:MM)',
+            'jam_sampai.date_format' => 'Format jam sampai tidak valid (HH:MM)',
+            'jam_sampai.after' => 'Jam sampai harus setelah jam masuk',
         ]);
 
         if ($validator->fails()) {
@@ -72,7 +78,9 @@ class AturAbsen extends Controller
                 'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
                 'radius' => $request->radius,
-                'status' => $request->status
+                'status' => $request->status,
+                'jam_masuk' => $request->jam_masuk,
+                'jam_sampai' => $request->jam_sampai,
             ]);
 
             return redirect()->route('atur.absen')
@@ -113,6 +121,8 @@ class AturAbsen extends Controller
             ],
             'radius' => 'required|integer|min:10|max:1000',
             'status' => 'required|in:disable,enable',
+            'jam_masuk' => 'nullable|date_format:H:i',
+            'jam_sampai' => 'nullable|date_format:H:i|after_or_equal:jam_masuk',
         ]);
 
         if ($validator->fails()) {
@@ -130,7 +140,9 @@ class AturAbsen extends Controller
                 'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
                 'radius' => $request->radius,
-                'status' => $request->status
+                'status' => $request->status,
+                'jam_masuk' => $request->jam_masuk,
+                'jam_sampai' => $request->jam_sampai,
             ]);
 
             return redirect()->route('atur.absen')

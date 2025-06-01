@@ -29,7 +29,7 @@ Route::middleware(['auth', 'only.kepala.sekolah'])->group(function () {
     Route::get('/atur-absen', [AturAbsen::class, 'show'])->name('atur.absen');
     Route::post('/atur-absen', [AturAbsen::class, 'store'])->name('lokasi.store');
     Route::get('/atur-absen/{id}/edit', [AturAbsen::class, 'edit'])->name('lokasi.edit');
-    Route::put('/atur-absen/{id}', [AturAbsen::class, 'update'])->name('lokasi.update');
+    Route::put('/atur-absen/{id}', [AturAbsen::class, 'update'])->name('atur.absen.update');
     Route::delete('/atur-absen/{id}', [AturAbsen::class, 'destroy'])->name('lokasi.destroy');
     Route::get('/search', [AturAbsen::class, 'searchLocation'])->name('lokasi.search');
     Route::get('/reverse-geocode', [AturAbsen::class, 'reverseGeocode'])->name('lokasi.reverse');

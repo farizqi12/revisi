@@ -18,7 +18,9 @@ class Lokasi extends Model
         'longitude',
         'radius',
         'alamat',
-        'status'
+        'status',
+        'jam_masuk',
+        'jam_sampai',
     ];
 
     // Relasi: satu lokasi memiliki banyak absensi

@@ -239,7 +239,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/user-manage">
+                        <a class="nav-link active" href="/user-manage">
                         <i class="fas fa-user"></i> Kelola Pengguna </a>
                     </li>
                     <li class="nav-item">
