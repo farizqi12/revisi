@@ -535,7 +535,7 @@
                     </div>
                     <div class="time-indicator">
                         <i class="fas fa-sign-out-alt"></i>
-                        <span class="time-label">Jam Pulang:</span>
+                        <span class="time-label">Batas Jam Masuk:</span>
                         <span class="time-value">{{ $lokasi->jam_sampai ?? '--:--' }}</span>
                     </div>
                 </div>
