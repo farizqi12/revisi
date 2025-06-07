@@ -22,6 +22,75 @@
             --accent-color: #48bb78;
         }
 
+        /* Loading Modal Styles - Improved */
+        #loadingModal .modal-content {
+            background: transparent;
+            border: none;
+        }
+
+        #loadingModal .modal-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #loadingSpinner {
+            width: 4rem;
+            height: 4rem;
+            border-width: 0.5rem;
+            border-color: rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        #loadingMessage {
+            font-weight: 600;
+            font-size: 1.1rem;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            margin-top: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            max-width: 80%;
+        }
+
+        /* Notification Container - New */
+        .notification-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1100;
+            width: 350px;
+            max-width: 100%;
+        }
+
+        .custom-alert {
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: none;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .custom-alert .alert-icon {
+            font-size: 1.5rem;
+            margin-right: 12px;
+        }
+
+        .custom-alert .btn-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+        }
+
+        /* Rest of your existing styles remain the same */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -405,6 +474,12 @@
                 align-items: flex-start;
                 gap: 15px;
             }
+
+            .notification-container {
+                top: 70px;
+                right: 10px;
+                width: 95%;
+            }
         }
 
         @media (max-width: 576px) {
@@ -420,6 +495,9 @@
 </head>
 
 <body>
+    <!-- Notification Container -->
+    <div class="notification-container"></div>
+
     <!-- Navbar-guru -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
@@ -463,17 +541,21 @@
     <!-- Main Content -->
     <div class="main-container animate__animated animate__fadeIn">
         @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle me-2"></i>
-                {{ session('success') }}
+            <div class="alert alert-success alert-dismissible fade show custom-alert" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle alert-icon"></i>
+                    <div>{{ session('success') }}</div>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
         @if (session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-circle me-2"></i>
-                {{ session('error') }}
+            <div class="alert alert-danger alert-dismissible fade show custom-alert" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-circle alert-icon"></i>
+                    <div>{{ session('error') }}</div>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
@@ -587,8 +669,19 @@
         @endforelse
     </div>
 
-    <!-- Loading Modal -->
-    <x-loading-modal />
+    <!-- Loading Modal - Improved -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div id="loadingSpinner" class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <div id="loadingMessage" class="mt-3">Memproses...</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -596,15 +689,17 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize all maps and location tracking
             @forelse ($lokasis as $index => $lokasi)
-                initializeLocation({{ $index }}, {{ $lokasi->latitude }}, {{ $lokasi->longitude }},
-                    {{ $lokasi->radius }});
+                initializeLocation(
+                    {{ $index }},
+                    {{ $lokasi->latitude }},
+                    {{ $lokasi->longitude }},
+                    {{ $lokasi->radius }},
+                    {{ $lokasi->id }}
+                );
             @empty
-                // No locations to initialize
             @endforelse
 
-            // Animation for cards when they come into view
             const animateElements = document.querySelectorAll('.animate__animated');
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -622,21 +717,18 @@
             });
         });
 
-        // Function to initialize location tracking and map for each location
-        function initializeLocation(index, targetLat, targetLng, radius) {
+        function initializeLocation(index, targetLat, targetLng, radius, lokasiId) {
             const mapId = `map${index}`;
             const distanceId = `distance${index}`;
             const statusId = `locationStatus${index}`;
             const btnId = `attendanceBtn${index}`;
 
-            // Initialize map
             const map = L.map(mapId).setView([targetLat, targetLng], 16);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
 
-            // Add target location marker
             const targetMarker = L.circleMarker([targetLat, targetLng], {
                 radius: 8,
                 fillColor: "#667eea",
@@ -648,7 +740,6 @@
 
             targetMarker.bindPopup(`<b>Lokasi Absen</b><br>${radius}m radius`).openPopup();
 
-            // Draw radius circle
             L.circle([targetLat, targetLng], {
                 color: '#667eea',
                 fillColor: '#667eea',
@@ -658,21 +749,15 @@
 
             let userMarker = null;
             let accuracyCircle = null;
-            let watchId = null;
 
-            // Update UI with location data
             function updateLocation(position) {
                 const userLat = position.coords.latitude;
                 const userLng = position.coords.longitude;
                 const accuracy = position.coords.accuracy;
 
-                // Calculate distance between user and target (in meters)
                 const distance = calculateDistance(userLat, userLng, targetLat, targetLng);
-
-                // Update distance display
                 document.getElementById(distanceId).textContent = `${Math.round(distance)}m`;
 
-                // Update user marker on map
                 if (userMarker) {
                     userMarker.setLatLng([userLat, userLng]);
                 } else {
@@ -683,11 +768,9 @@
                         weight: 2,
                         opacity: 1,
                         fillOpacity: 0.8
-                    }).addTo(map);
-                    userMarker.bindPopup("<b>Posisi Anda</b>").openPopup();
+                    }).addTo(map).bindPopup("<b>Posisi Anda</b>").openPopup();
                 }
 
-                // Update accuracy circle
                 if (accuracyCircle) {
                     accuracyCircle.setLatLng([userLat, userLng]);
                     accuracyCircle.setRadius(accuracy);
@@ -700,10 +783,7 @@
                     }).addTo(map);
                 }
 
-                // Check if user is within radius (with some buffer for accuracy)
                 const isWithinRadius = distance <= (radius + accuracy);
-
-                // Update status and button
                 const statusElement = document.getElementById(statusId);
                 const button = document.getElementById(btnId);
 
@@ -717,12 +797,10 @@
                     button.disabled = true;
                 }
 
-                // Fit map to show both markers
                 const group = new L.featureGroup([targetMarker, userMarker, accuracyCircle]);
                 map.fitBounds(group.getBounds().pad(0.5));
             }
 
-            // Handle location errors
             function handleLocationError(error) {
                 const statusElement = document.getElementById(statusId);
                 const button = document.getElementById(btnId);
@@ -739,7 +817,7 @@
                     case error.TIMEOUT:
                         statusElement.innerHTML = '<i class="fas fa-clock"></i> Timeout';
                         break;
-                    case error.UNKNOWN_ERROR:
+                    default:
                         statusElement.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error tidak diketahui';
                         break;
                 }
@@ -747,7 +825,6 @@
                 button.disabled = true;
             }
 
-            // Start watching position
             if (navigator.geolocation) {
                 const options = {
                     enableHighAccuracy: true,
@@ -755,20 +832,47 @@
                     maximumAge: 0
                 };
 
-                watchId = navigator.geolocation.watchPosition(
-                    updateLocation,
-                    handleLocationError,
-                    options
-                );
+                navigator.geolocation.watchPosition(updateLocation, handleLocationError, options);
 
-                // Add click handler for attendance button
                 document.getElementById(btnId).addEventListener('click', function() {
-                    showLoading('Mencatat absensi...');
-                    // Here you would typically submit the attendance via AJAX
-                    // For now we'll just simulate a success
-                    setTimeout(() => {
-                        alert(`Absensi berhasil dicatat di ${mapId}!`);
-                    }, 1500);
+                    const loadingModal = showLoading('Mencatat absensi...');
+                    
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        fetch('{{ route('absen.store') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    lokasi_id: lokasiId,
+                                    latitude: position.coords.latitude,
+                                    longitude: position.coords.longitude
+                                })
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                hideLoading(loadingModal);
+                                showNotification('success', data.message || 'Absensi berhasil dicatat!');
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1500);
+                            })
+                            .catch(error => {
+                                hideLoading(loadingModal);
+                                console.error('Error:', error);
+                                showNotification('danger', 'Terjadi kesalahan saat mencatat absensi: ' + error.message);
+                            });
+                    }, (error) => {
+                        hideLoading(loadingModal);
+                        showNotification('danger', 'Gagal mendapatkan lokasi: ' + error.message);
+                    });
                 });
             } else {
                 document.getElementById(statusId).innerHTML =
@@ -777,29 +881,79 @@
             }
         }
 
-        // Calculate distance between two coordinates in meters (Haversine formula)
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3; // Earth radius in meters
+            const R = 6371e3;
             const φ1 = lat1 * Math.PI / 180;
             const φ2 = lat2 * Math.PI / 180;
             const Δφ = (lat2 - lat1) * Math.PI / 180;
             const Δλ = (lon2 - lon1) * Math.PI / 180;
 
-            const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+            const a = Math.sin(Δφ / 2) ** 2 +
                 Math.cos(φ1) * Math.cos(φ2) *
-                Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+                Math.sin(Δλ / 2) ** 2;
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
             return R * c;
         }
 
-        // Show loading modal
+        // Improved Loading Modal Functions
         function showLoading(message) {
-            // This would typically show your loading modal component
-            console.log('Loading:', message);
-            // In a real implementation, you would show your modal here
+            const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+            document.getElementById('loadingMessage').textContent = message;
+            loadingModal.show();
+            return loadingModal;
+        }
+
+        function hideLoading(modal) {
+            modal.hide();
+        }
+
+        // Improved Notification System
+        function showNotification(type, message) {
+            const alertTypes = {
+                'success': {
+                    icon: 'fa-check-circle',
+                    color: 'success'
+                },
+                'danger': {
+                    icon: 'fa-exclamation-circle',
+                    color: 'danger'
+                },
+                'warning': {
+                    icon: 'fa-exclamation-triangle',
+                    color: 'warning'
+                },
+                'info': {
+                    icon: 'fa-info-circle',
+                    color: 'info'
+                }
+            };
+
+            const alertConfig = alertTypes[type] || alertTypes.info;
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${alertConfig.color} alert-dismissible fade show custom-alert animate__animated animate__fadeInRight`;
+            alertDiv.role = 'alert';
+            
+            alertDiv.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas ${alertConfig.icon} alert-icon"></i>
+                    <div>${message}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+
+            const container = document.querySelector('.notification-container');
+            container.insertBefore(alertDiv, container.firstChild);
+
+            // Auto dismiss after 5 seconds
+            setTimeout(() => {
+                alertDiv.classList.add('animate__fadeOutRight');
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 500);
+            }, 5000);
         }
     </script>
 </body>
-
 </html>

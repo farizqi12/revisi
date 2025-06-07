@@ -8,14 +8,14 @@ use App\Http\Controllers\KelolaTransaksi;
 use App\Http\Controllers\AturAbsen;
 use App\Http\Controllers\Profil;
 
-Route::get("/", [App\Http\Controllers\LoginController::class, "showLoginForm"])->name("login");
-Route::post("/login", [App\Http\Controllers\LoginController::class, "login"])->name("login.post");
+Route::get('/', [App\Http\Controllers\LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [App\Http\Controllers\LoginController::class, 'login'])->name('login.post');
 Route::post('/logout', [App\Http\Controllers\LoginController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth', 'only.kepala.sekolah'])->group(function () {
-    Route::get("/dashboard", [LoginController::class, "dashboard"])->name("dashboard.kepala");
+    Route::get('/dashboard', [LoginController::class, 'dashboard'])->name('dashboard.kepala');
 
-    Route::get("/user-manage", [ManageUser::class, "show"])->name("userManage");
+    Route::get('/user-manage', [ManageUser::class, 'show'])->name('userManage');
     Route::post('/users/create', [ManageUser::class, 'create'])->name('users.create');
     Route::post('/users/update', [ManageUser::class, 'update'])->name('users.update');
     Route::post('/users/delete', [ManageUser::class, 'delete'])->name('users.delete');
@@ -38,7 +38,7 @@ Route::middleware(['auth', 'only.kepala.sekolah'])->group(function () {
 });
 
 Route::middleware(['auth', 'only.guru'])->group(function () {
-    Route::get("/dashboard-guru", [LoginController::class, "dashboardGuru"])->name("dashboard.guru");
+    Route::get('/dashboard-guru', [LoginController::class, 'dashboardGuru'])->name('dashboard.guru');
 
     Route::get('/topup', [Topup::class, 'show'])->name('topup');
     Route::post('/topup-store', [Topup::class, 'store'])->name('topup.store');
@@ -49,4 +49,6 @@ Route::middleware(['auth', 'only.guru'])->group(function () {
     Route::get('/profil', [Profil::class, 'show'])->name('profil.show');
 
     route::get('/absensi', [App\Http\Controllers\Absen::class, 'show'])->name('absensi.show');
+    Route::post('/absen', [App\Http\Controllers\Absen::class, 'store'])->name('absen.store');
 });
+    
