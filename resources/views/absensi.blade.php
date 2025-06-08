@@ -749,6 +749,7 @@
 
             let userMarker = null;
             let accuracyCircle = null;
+            let watchId = null;
 
             function updateLocation(position) {
                 const userLat = position.coords.latitude;
@@ -757,6 +758,20 @@
 
                 const distance = calculateDistance(userLat, userLng, targetLat, targetLng);
                 document.getElementById(distanceId).textContent = `${Math.round(distance)}m`;
+
+                // Update accuracy overlay
+                const accuracyElement = document.createElement('div');
+                accuracyElement.className = 'map-overlay';
+                accuracyElement.style.bottom = '10px';
+                accuracyElement.style.top = 'auto';
+                accuracyElement.innerHTML = `<i class="fas fa-crosshairs"></i> Akurasi: ${Math.round(accuracy)} meter`;
+                
+                // Remove previous accuracy overlay if exists
+                const existingAccuracy = document.querySelector(`#${mapId} .accuracy-overlay`);
+                if (existingAccuracy) existingAccuracy.remove();
+                
+                accuracyElement.classList.add('accuracy-overlay');
+                document.getElementById(mapId).appendChild(accuracyElement);
 
                 if (userMarker) {
                     userMarker.setLatLng([userLat, userLng]);
@@ -783,7 +798,8 @@
                     }).addTo(map);
                 }
 
-                const isWithinRadius = distance <= (radius + accuracy);
+                // Calculate if user is within radius considering accuracy
+                const isWithinRadius = distance <= (radius + (accuracy * 0.5)); // More conservative approach
                 const statusElement = document.getElementById(statusId);
                 const button = document.getElementById(btnId);
 
@@ -793,10 +809,11 @@
                     button.disabled = false;
                 } else {
                     statusElement.className = "status-badge status-inactive";
-                    statusElement.innerHTML = '<i class="fas fa-times-circle"></i> Di luar jangkauan';
+                    statusElement.innerHTML = `<i class="fas fa-times-circle"></i> Di luar jangkauan (${Math.round(distance - radius)}m diluar)`;
                     button.disabled = true;
                 }
 
+                // Adjust map view to show both markers with padding
                 const group = new L.featureGroup([targetMarker, userMarker, accuracyCircle]);
                 map.fitBounds(group.getBounds().pad(0.5));
             }
@@ -807,82 +824,120 @@
 
                 statusElement.className = "status-badge status-inactive";
 
+                let errorMessage = '';
                 switch (error.code) {
                     case error.PERMISSION_DENIED:
-                        statusElement.innerHTML = '<i class="fas fa-ban"></i> Akses lokasi ditolak';
+                        errorMessage = 'Akses lokasi ditolak. Silakan aktifkan izin lokasi di pengaturan browser Anda.';
                         break;
                     case error.POSITION_UNAVAILABLE:
-                        statusElement.innerHTML = '<i class="fas fa-question-circle"></i> Lokasi tidak tersedia';
+                        errorMessage = 'Informasi lokasi tidak tersedia. Pastikan GPS/Internet aktif.';
                         break;
                     case error.TIMEOUT:
-                        statusElement.innerHTML = '<i class="fas fa-clock"></i> Timeout';
+                        errorMessage = 'Permintaan lokasi timeout. Pastikan sinyal Anda kuat.';
                         break;
                     default:
-                        statusElement.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error tidak diketahui';
+                        errorMessage = 'Terjadi kesalahan saat mengambil lokasi.';
                         break;
                 }
-
+                
+                statusElement.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${errorMessage}`;
                 button.disabled = true;
+                
+                // Show notification to user
+                showNotification('danger', errorMessage);
             }
 
             if (navigator.geolocation) {
                 const options = {
-                    enableHighAccuracy: true,
+                    enableHighAccuracy: true,  // Request GPS for better accuracy
                     timeout: 10000,
-                    maximumAge: 0
+                    maximumAge: 0,
+                    distanceFilter: 1  // Update only when moved at least 1 meter
                 };
 
-                navigator.geolocation.watchPosition(updateLocation, handleLocationError, options);
+                // Start watching position with high accuracy
+                watchId = navigator.geolocation.watchPosition(
+                    updateLocation, 
+                    handleLocationError, 
+                    options
+                );
 
+                // Add button click handler
                 document.getElementById(btnId).addEventListener('click', function() {
                     const loadingModal = showLoading('Mencatat absensi...');
                     
-                    navigator.geolocation.getCurrentPosition(function(position) {
-                        fetch('{{ route('absen.store') }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                    'Accept': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    lokasi_id: lokasiId,
-                                    latitude: position.coords.latitude,
-                                    longitude: position.coords.longitude
+                    // Get fresh position for attendance
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            const distance = calculateDistance(
+                                position.coords.latitude, 
+                                position.coords.longitude, 
+                                targetLat, 
+                                targetLng
+                            );
+                            
+                            if (distance > (radius + (position.coords.accuracy * 0.5))) {
+                                hideLoading(loadingModal);
+                                showNotification('danger', 'Anda diluar jangkauan lokasi absen!');
+                                return;
+                            }
+
+                            fetch('{{ route('absen.store') }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                        'Accept': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        lokasi_id: lokasiId,
+                                        latitude: position.coords.latitude,
+                                        longitude: position.coords.longitude,
+                                        accuracy: position.coords.accuracy
+                                    })
                                 })
-                            })
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error('Network response was not ok');
-                                }
-                                return response.json();
-                            })
-                            .then(data => {
-                                hideLoading(loadingModal);
-                                showNotification('success', data.message || 'Absensi berhasil dicatat!');
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 1500);
-                            })
-                            .catch(error => {
-                                hideLoading(loadingModal);
-                                console.error('Error:', error);
-                                showNotification('danger', 'Terjadi kesalahan saat mencatat absensi: ' + error.message);
-                            });
-                    }, (error) => {
-                        hideLoading(loadingModal);
-                        showNotification('danger', 'Gagal mendapatkan lokasi: ' + error.message);
-                    });
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Network response was not ok');
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    hideLoading(loadingModal);
+                                    showNotification('success', data.message || 'Absensi berhasil dicatat!');
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 1500);
+                                })
+                                .catch(error => {
+                                    hideLoading(loadingModal);
+                                    console.error('Error:', error);
+                                    showNotification('danger', 'Terjadi kesalahan saat mencatat absensi: ' + error.message);
+                                });
+                        }, 
+                        (error) => {
+                            hideLoading(loadingModal);
+                            showNotification('danger', 'Gagal mendapatkan lokasi: ' + error.message);
+                        },
+                        { enableHighAccuracy: true }
+                    );
                 });
             } else {
                 document.getElementById(statusId).innerHTML =
                     '<i class="fas fa-exclamation-triangle"></i> Geolocation tidak didukung';
                 document.getElementById(btnId).disabled = true;
             }
+
+            // Clean up watchPosition when leaving the page
+            window.addEventListener('beforeunload', function() {
+                if (watchId) {
+                    navigator.geolocation.clearWatch(watchId);
+                }
+            });
         }
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3;
+            const R = 6371e3; // Earth radius in meters
             const φ1 = lat1 * Math.PI / 180;
             const φ2 = lat2 * Math.PI / 180;
             const Δφ = (lat2 - lat1) * Math.PI / 180;

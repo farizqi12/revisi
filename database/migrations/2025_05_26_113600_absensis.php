@@ -35,6 +35,9 @@ return new class extends Migration
             $table->string('address')->nullable(); // Alamat hasil reverse geocoding
             $table->enum('status_waktu', ['tepat waktu', 'terlambat']);
             $table->enum('status_lokasi', ['dalam radius', 'luar radius']);
+            $table->decimal('accuracy', 10, 2)->nullable()->after('longitude');
+            $table->decimal('jarak', 10, 2)->nullable()->after('accuracy');
+            $table->string('status', 20)->default('hadir')->after('jarak');
             $table->integer('durasi')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
