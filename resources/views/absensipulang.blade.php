@@ -902,13 +902,13 @@
                         <i class="fas fa-check-circle"></i> Dalam radius absen (${radius}m)
                     </span>`;
                     btnEl.disabled = false;
-                    btnEl.innerHTML = `<i class="fas fa-fingerprint"></i> Absen Sekarang (${Math.round(distance)}m)`;
+                    btnEl.innerHTML = `<i class="fas fa-fingerprint"></i> Pulang Sekarang (${Math.round(distance)}m)`;
                 } else {
                     statusEl.innerHTML = `<span class="status-badge status-inactive">
                         <i class="fas fa-times-circle"></i> Di luar radius (${radius}m)
                     </span>`;
                     btnEl.disabled = true;
-                    btnEl.innerHTML = `<i class="fas fa-fingerprint"></i> Absen Sekarang`;
+                    btnEl.innerHTML = `<i class="fas fa-fingerprint"></i> Pulang Sekarang`;
                 }
             }
 
@@ -974,7 +974,7 @@
 
                     showLoading('Mencatat absensi...');
 
-                    fetch('{{ route('absen.store') }}', {
+                    fetch('{{ route('absen.storePulang') }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -985,7 +985,7 @@
                                 lokasi_id: lokasiId,
                                 latitude: userLat,
                                 longitude: userLng,
-                                type: 'masuk',
+                                type: 'pulang',
                                 status_lokasi: 'dalam radius'
                             })
                         })

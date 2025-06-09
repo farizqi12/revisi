@@ -14,7 +14,6 @@ class Absensi extends Model
         'type',
         'latitude',
         'longitude',
-        'address',
         'distance',
         'is_approved',
         'notes',

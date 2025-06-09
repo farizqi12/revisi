@@ -32,10 +32,9 @@ return new class extends Migration
             $table->enum('type', ['masuk', 'pulang', 'izin', 'sakit']);
             $table->decimal('latitude', 11, 8);
             $table->decimal('longitude', 12, 8);
-            $table->string('address')->nullable(); // Alamat hasil reverse geocoding
             $table->enum('status_waktu', ['tepat waktu', 'terlambat']);
             $table->enum('status_lokasi', ['dalam radius', 'luar radius']);
-            $table->integer('durasi')->nullable();
+            $table->time('durasi')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
 

@@ -529,7 +529,7 @@
                     <i class="fas fa-fingerprint text-success"></i>
                     <span>Absen Masuk</span>
                 </a>
-                <a href="/absen-pulang" class="action-btn btn-outline-danger text-decoration-none">
+                <a href="/absensipulang" class="action-btn btn-outline-danger text-decoration-none">
                     <i class="fas fa-sign-out-alt text-danger"></i>
                     <span>Absen Pulang</span>
                 </a>

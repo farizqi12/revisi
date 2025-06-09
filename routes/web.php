@@ -49,6 +49,9 @@ Route::middleware(['auth', 'only.guru'])->group(function () {
     Route::get('/profil', [Profil::class, 'show'])->name('profil.show');
 
     route::get('/absensi', [App\Http\Controllers\Absen::class, 'show'])->name('absensi.show');
+    route::get('/absensipulang', [App\Http\Controllers\Absen::class, 'showpulang'])->name('absensipulang.show');
+
     Route::post('/absen', [App\Http\Controllers\Absen::class, 'store'])->name('absen.store');
+        Route::post('/absenpulang', [App\Http\Controllers\Absen::class, 'storePulang'])->name('absen.storePulang');
+
 });
-    
