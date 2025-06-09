@@ -15,53 +15,62 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root {
-            --primary-gradient: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --primary-light: #667eea;
             --primary-dark: #764ba2;
             --secondary-color: #4a5568;
             --accent-color: #48bb78;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.18);
         }
 
-        /* Loading Modal Styles - Improved */
-        #loadingModal .modal-content {
-            background: transparent;
-            border: none;
-        }
-
-        #loadingModal .modal-body {
-            display: flex;
-            flex-direction: column;
+        /* Loading Modal Styles */
+        #loadingModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
             align-items: center;
             justify-content: center;
+            z-index: 2000;
         }
 
-        #loadingSpinner {
-            width: 4rem;
-            height: 4rem;
-            border-width: 0.5rem;
-            border-color: rgba(255, 255, 255, 0.3);
-            border-top-color: #fff;
+        .loading-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(102, 126, 234, 0.2);
+            border-top-color: var(--primary-light);
+            border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
-        #loadingMessage {
+        #loadingText {
             font-weight: 600;
-            font-size: 1.1rem;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 30px;
-            margin-top: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            text-align: center;
-            max-width: 80%;
+            color: var(--secondary-color);
         }
 
-        /* Notification Container - New */
+        /* Notification Container */
         .notification-container {
             position: fixed;
             top: 80px;
@@ -90,12 +99,26 @@
             right: 12px;
         }
 
-        /* Rest of your existing styles remain the same */
+        /* Body Styles */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-attachment: fixed;
             min-height: 100vh;
             padding-top: 70px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><radialGradient id="grad" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" /><stop offset="100%" style="stop-color:rgba(255,255,255,0);stop-opacity:1" /></radialGradient></defs><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="20" r="1" fill="rgba(255,255,255,0.08)"/><circle cx="40" cy="60" r="1.5" fill="rgba(255,255,255,0.06)"/><circle cx="90" cy="70" r="1" fill="rgba(255,255,255,0.04)"/><circle cx="10" cy="80" r="2" fill="rgba(255,255,255,0.05)"/></svg>') repeat;
+            pointer-events: none;
+            z-index: -1;
         }
 
         /* Navbar */
@@ -103,6 +126,7 @@
             background: var(--primary-gradient);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             padding: 0.8rem 2rem;
+            backdrop-filter: blur(10px);
         }
 
         .btn-logout {
@@ -185,13 +209,17 @@
         }
 
         .location-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            border: none;
-            transition: all 0.5s ease;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow:
+                0 20px 40px rgba(0, 0, 0, 0.1),
+                0 8px 32px rgba(102, 126, 234, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             position: relative;
             overflow: hidden;
         }
@@ -201,251 +229,362 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 5px;
+            right: 0;
+            height: 6px;
             background: var(--primary-gradient);
+            border-radius: 24px 24px 0 0;
         }
 
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        .location-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .location-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow:
+                0 30px 60px rgba(0, 0, 0, 0.15),
+                0 12px 40px rgba(102, 126, 234, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .location-card:hover::after {
+            opacity: 1;
         }
 
         .location-title {
             color: var(--primary-dark);
-            font-weight: 700;
-            margin-bottom: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
             display: flex;
             align-items: center;
-            font-size: 1.5rem;
+            font-size: 1.75rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .location-title i {
-            margin-right: 12px;
-            animation: wave 2s infinite;
+            margin-right: 15px;
+            animation: pulse 2s infinite;
             background: var(--primary-gradient);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
+            font-size: 1.5em;
         }
 
-        @keyframes wave {
+        @keyframes pulse {
 
             0%,
             100% {
-                transform: rotate(0deg);
+                transform: scale(1);
             }
 
-            25% {
-                transform: rotate(15deg);
-            }
-
-            75% {
-                transform: rotate(-15deg);
+            50% {
+                transform: scale(1.1);
             }
         }
 
-        /* Data Display Styles */
-        .data-grid {
+        /* Info Grid Styles */
+        .info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
-            margin-bottom: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 2rem;
         }
 
-        .data-item {
-            background: rgba(245, 245, 245, 0.7);
-            border-radius: 10px;
-            padding: 15px;
-            transition: all 0.3s ease;
-            border-left: 4px solid var(--primary-light);
+        .info-item {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
         }
 
-        .data-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            background: rgba(245, 245, 245, 0.9);
+        .info-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-gradient);
+            transition: width 0.3s ease;
         }
 
-        .data-label {
+        .info-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
+        }
+
+        .info-item:hover::before {
+            width: 8px;
+        }
+
+        .info-label {
             font-size: 0.85rem;
             color: var(--secondary-color);
-            font-weight: 600;
-            margin-bottom: 5px;
+            font-weight: 700;
+            margin-bottom: 8px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .data-value {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 0;
+        .info-label i {
+            font-size: 0.9em;
+            opacity: 0.7;
         }
 
-        .data-value.highlight {
-            color: var(--primary-dark);
-        }
-
-        .data-icon {
+        .info-value {
             font-size: 1.2rem;
-            margin-right: 8px;
-            color: var(--primary-light);
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 0;
+            line-height: 1.2;
         }
 
-        /* Status Badges */
+        /* Status Badges with improved design */
         .status-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.8rem;
+            padding: 10px 16px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.85rem;
             letter-spacing: 0.5px;
             display: inline-flex;
             align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .status-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .status-badge:hover::before {
+            left: 100%;
         }
 
         .status-badge i {
-            margin-right: 5px;
-            font-size: 0.7rem;
+            font-size: 0.9em;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-2px);
+            }
         }
 
         .status-active {
-            background-color: rgba(72, 187, 120, 0.1);
-            color: #2f855a;
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
         }
 
         .status-inactive {
-            background-color: rgba(229, 62, 62, 0.1);
-            color: #c53030;
+            background: linear-gradient(135deg, var(--danger-color), #DC2626);
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
         }
 
         .status-pending {
-            background-color: rgba(237, 137, 54, 0.1);
-            color: #9c4221;
+            background: linear-gradient(135deg, var(--warning-color), #D97706);
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
         }
 
-        /* Time Indicators */
-        .time-indicator {
-            display: flex;
-            align-items: center;
-            padding: 8px 12px;
-            border-radius: 8px;
-            background: rgba(102, 126, 234, 0.08);
-            margin-bottom: 5px;
-        }
-
-        .time-indicator i {
-            margin-right: 8px;
-            color: var(--primary-light);
-        }
-
-        .time-label {
-            font-size: 0.85rem;
+        /* Distance Display Enhanced */
+        .distance-display {
+            font-size: 1rem;
             color: var(--secondary-color);
-            margin-right: 5px;
-        }
-
-        .time-value {
-            font-weight: 600;
-            color: #2d3748;
-        }
-
-        /* Map Container */
-        .map-container {
-            height: 300px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 12px 18px;
             border-radius: 12px;
-            overflow: hidden;
-            margin-top: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            position: relative;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .map-overlay {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 1000;
-            background: white;
-            padding: 8px 12px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-
-        .map-overlay i {
-            color: var(--primary-light);
-            margin-right: 5px;
-        }
-
-        /* Distance and Attendance Section */
-        .attendance-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-top: 15px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(0, 0, 0, 0.03);
-        }
-
-        .distance-info {
-            display: flex;
-            align-items: center;
-        }
-
-        .distance-icon {
-            font-size: 1.5rem;
-            color: var(--primary-light);
-            margin-right: 10px;
-        }
-
-        .distance-text {
-            font-size: 0.9rem;
-            color: var(--secondary-color);
-            margin-right: 5px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-weight: 600;
         }
 
         .distance-value {
-            font-weight: 700;
-            font-size: 1.1rem;
+            font-weight: 800;
             color: var(--primary-dark);
+            font-size: 1.1em;
+        }
+
+        /* Attendance Section Enhanced */
+        .attendance-section {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .attendance-section:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 12px 40px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
         .attendance-btn {
             background: var(--primary-gradient);
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 10px 25px;
-            font-weight: 600;
-            transition: all 0.3s;
+            border-radius: 16px;
+            padding: 16px 32px;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             display: flex;
             align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 6px rgba(102, 126, 234, 0.2);
+            gap: 12px;
+            box-shadow:
+                0 6px 20px rgba(102, 126, 234, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .attendance-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .attendance-btn:hover::before {
+            left: 100%;
         }
 
         .attendance-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.3);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow:
+                0 10px 30px rgba(102, 126, 234, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .attendance-btn:active {
+            transform: translateY(-1px) scale(1.02);
         }
 
         .attendance-btn:disabled {
-            background: #e2e8f0;
+            background: linear-gradient(135deg, #e2e8f0, #cbd5e0);
             color: #a0aec0;
             cursor: not-allowed;
             transform: none;
-            box-shadow: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        /* Responsive */
+        .attendance-btn:disabled::before {
+            display: none;
+        }
+
+        .attendance-btn i {
+            font-size: 1.1em;
+            animation: fingerprint 2s infinite;
+        }
+
+        @keyframes fingerprint {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        /* Enhanced Time Info Row */
+        .row.mb-3 .info-item {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+            border-left: 4px solid var(--primary-gradient);
+        }
+
+        /* Enhanced Address Section */
+        .mb-3:last-of-type .info-item {
+            background: linear-gradient(135deg, rgba(72, 187, 120, 0.05), rgba(56, 178, 172, 0.05));
+            border-left: 4px solid var(--accent-color);
+            padding: 20px;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        /* Empty State Enhancement */
+        .location-card.text-center {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 2px dashed rgba(102, 126, 234, 0.3);
+            padding: 4rem 2rem;
+        }
+
+        .location-card.text-center i {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+        }
+
+        .location-card.text-center h3 {
+            color: var(--primary-dark);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive Improvements */
         @media (max-width: 992px) {
-            .data-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            .info-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
             }
         }
 
@@ -465,14 +604,30 @@
                 padding: 1rem;
             }
 
-            .data-grid {
+            .location-card {
+                padding: 2rem;
+                margin-bottom: 2rem;
+            }
+
+            .location-title {
+                font-size: 1.5rem;
+            }
+
+            .info-grid {
                 grid-template-columns: 1fr 1fr;
+                gap: 12px;
             }
 
             .attendance-section {
                 flex-direction: column;
-                align-items: flex-start;
+                align-items: stretch;
                 gap: 15px;
+                text-align: center;
+            }
+
+            .attendance-btn {
+                justify-content: center;
+                padding: 14px 24px;
             }
 
             .notification-container {
@@ -483,13 +638,39 @@
         }
 
         @media (max-width: 576px) {
-            .data-grid {
+            .info-grid {
                 grid-template-columns: 1fr;
             }
 
             .location-title {
                 font-size: 1.3rem;
             }
+
+            .location-card {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Additional subtle animations */
+        .location-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
         }
     </style>
 </head>
@@ -538,422 +719,334 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <div class="main-container animate__animated animate__fadeIn">
+    <div class="main-container">
         @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show custom-alert" role="alert">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-check-circle alert-icon"></i>
-                    <div>{{ session('success') }}</div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="alert alert-success alert-dismissible fade show">
+                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
 
         @if (session('error'))
-            <div class="alert alert-danger alert-dismissible fade show custom-alert" role="alert">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-exclamation-circle alert-icon"></i>
-                    <div>{{ session('error') }}</div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="alert alert-danger alert-dismissible fade show">
+                <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
 
         @forelse ($lokasis as $index => $lokasi)
-            <div class="location-card card-hover animate__animated animate__fadeIn mb-4">
+            <div class="location-card">
                 <h2 class="location-title">
                     <i class="fas fa-map-marker-alt"></i> {{ $lokasi->name }}
                 </h2>
 
-                <!-- Data Grid -->
-                <div class="data-grid">
-                    <div class="data-item">
-                        <div class="data-label">
-                            <i class="fas fa-tag data-icon"></i> Jenis Lokasi
+                <!-- Info Grid -->
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-building"></i>
+                            Jenis Lokasi
                         </div>
-                        <p class="data-value">
-                            {{ ucfirst(str_replace('-', ' ', $lokasi->type)) }}
-                        </p>
+                        <div class="info-value">{{ ucfirst(str_replace('-', ' ', $lokasi->type)) }}</div>
                     </div>
-
-                    <div class="data-item">
-                        <div class="data-label">
-                            <i class="fas fa-bullseye data-icon"></i> Radius Absensi
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-expand-arrows-alt"></i>
+                            Radius
                         </div>
-                        <p class="data-value highlight">
-                            {{ $lokasi->radius }} meter
-                        </p>
+                        <div class="info-value">{{ $lokasi->radius }}m</div>
                     </div>
-
-                    <div class="data-item">
-                        <div class="data-label">
-                            <i class="fas fa-power-off data-icon"></i> Status
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-power-off"></i>
+                            Status
                         </div>
-                        <span
-                            class="status-badge {{ $lokasi->status == 'enable' ? 'status-active' : 'status-inactive' }}">
-                            <i
-                                class="fas {{ $lokasi->status == 'enable' ? 'fa-check-circle' : 'fa-times-circle' }}"></i>
-                            {{ $lokasi->status == 'enable' ? 'Aktif' : 'Nonaktif' }}
-                        </span>
-                    </div>
-
-                    <div class="data-item">
-                        <div class="data-label">
-                            <i class="fas fa-map-pin data-icon"></i> Koordinat
+                        <div class="info-value">
+                            <span
+                                class="status-badge {{ $lokasi->status == 'enable' ? 'status-active' : 'status-inactive' }}">
+                                <i
+                                    class="fas {{ $lokasi->status == 'enable' ? 'fa-check-circle' : 'fa-times-circle' }}"></i>
+                                {{ $lokasi->status == 'enable' ? 'Aktif' : 'Nonaktif' }}
+                            </span>
                         </div>
-                        <p class="data-value">
-                            {{ number_format($lokasi->latitude, 6) }}, {{ number_format($lokasi->longitude, 6) }}
-                        </p>
                     </div>
                 </div>
 
-                <!-- Time Indicators -->
-                <div class="mb-3">
-                    <div class="time-indicator">
-                        <i class="fas fa-sign-in-alt"></i>
-                        <span class="time-label">Jam Masuk:</span>
-                        <span class="time-value">{{ $lokasi->jam_masuk ?? '--:--' }}</span>
+                <!-- Time Info -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-clock"></i>Jam Masuk
+                            </div>
+                            <div class="info-value">{{ $lokasi->jam_masuk ?? '--:--' }}</div>
+                        </div>
                     </div>
-                    <div class="time-indicator">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span class="time-label">Batas Jam Masuk:</span>
-                        <span class="time-value">{{ $lokasi->jam_sampai ?? '--:--' }}</span>
+                    <div class="col-md-6">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-clock"></i>Batas Masuk
+                            </div>
+                            <div class="info-value">{{ $lokasi->jam_sampai ?? '--:--' }}</div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Address -->
                 <div class="mb-3">
-                    <div class="data-label">
-                        <i class="fas fa-map-marker-alt me-2"></i> Alamat Lengkap
+                    <div class="info-label mb-2">
+                        <i class="fas fa-map-marker-alt me-2"></i>Alamat
                     </div>
-                    <div class="p-3 bg-light rounded">
+                    <div class="info-item">
                         {{ $lokasi->alamat ?? 'Alamat tidak tersedia' }}
-                    </div>
-                </div>
-
-                <!-- Map Container -->
-                <div class="map-container" id="map{{ $index }}">
-                    <div class="map-overlay">
-                        <i class="fas fa-info-circle"></i> Radius: {{ $lokasi->radius }}m
                     </div>
                 </div>
 
                 <!-- Attendance Section -->
                 <div class="attendance-section">
-                    <div class="distance-info">
-                        <i class="fas fa-arrows-alt-h distance-icon"></i>
-                        <span class="distance-text">Jarak dari lokasi:</span>
-                        <span id="distance{{ $index }}" class="distance-value">-</span>
-                    </div>
                     <div>
-                        <span id="locationStatus{{ $index }}" class="status-badge status-pending me-3">
-                            <i class="fas fa-sync-alt fa-spin"></i> Mendeteksi lokasi...
-                        </span>
-                        <button id="attendanceBtn{{ $index }}" class="attendance-btn" disabled>
-                            <i class="fas fa-fingerprint"></i> Absen Sekarang
-                        </button>
+                        <div id="locationStatus{{ $index }}" class="mb-3">
+                            <span class="status-badge status-pending">
+                                <i class="fas fa-sync-alt fa-spin"></i> Mendeteksi lokasi...
+                            </span>
+                        </div>
+
+                        <div id="distanceDisplay{{ $index }}" class="distance-display">
+                            Jarak: <span class="distance-value">-</span>
+                            <span class="accuracy-info">(Akurasi: <span class="accuracy-value">-</span>)</span>
+                        </div>
                     </div>
+
+                    <button id="attendanceBtn{{ $index }}" class="attendance-btn" disabled>
+                        <i class="fas fa-fingerprint"></i> Absen Sekarang
+                    </button>
                 </div>
             </div>
         @empty
-            <div class="location-card">
-                <h2 class="location-title">
-                    <i class="fas fa-map-marked-alt"></i> Tidak Ada Lokasi
-                </h2>
-                <div class="text-center py-4">
-                    <i class="fas fa-map-marker-slash fa-3x mb-3" style="color: #a0aec0;"></i>
-                    <p class="text-muted">Tidak ada lokasi absensi yang tersedia saat ini.</p>
-                </div>
+            <div class="location-card text-center">
+                <i class="fas fa-map-marker-slash fa-3x mb-3"></i>
+                <h3>Tidak Ada Lokasi</h3>
+                <p class="text-muted">Tidak ada lokasi absensi yang tersedia saat ini.</p>
             </div>
         @endforelse
     </div>
 
-    <!-- Loading Modal - Improved -->
-    <div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-body text-center">
-                    <div id="loadingSpinner" class="spinner-border" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <div id="loadingMessage" class="mt-3">Memproses...</div>
-                </div>
-            </div>
+    <!-- Loading Modal -->
+    <div class="loading" id="loadingModal">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div id="loadingText">Memproses...</div>
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Leaflet JS for maps -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            @forelse ($lokasis as $index => $lokasi)
-                initializeLocation(
-                    {{ $index }},
-                    {{ $lokasi->latitude }},
-                    {{ $lokasi->longitude }},
-                    {{ $lokasi->radius }},
-                    {{ $lokasi->id }}
-                );
-            @empty
-            @endforelse
-
-            const animateElements = document.querySelectorAll('.animate__animated');
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add(entry.target.dataset.animation);
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, {
-                threshold: 0.1
-            });
-
-            animateElements.forEach(element => {
-                observer.observe(element);
-            });
+            @foreach ($lokasis as $index => $lokasi)
+                initLocation({{ $index }}, {{ $lokasi->latitude }}, {{ $lokasi->longitude }},
+                    {{ $lokasi->radius }}, {{ $lokasi->id }}, '{{ $lokasi->jam_masuk }}');
+            @endforeach
         });
 
-        function initializeLocation(index, targetLat, targetLng, radius, lokasiId) {
-            const mapId = `map${index}`;
-            const distanceId = `distance${index}`;
-            const statusId = `locationStatus${index}`;
-            const btnId = `attendanceBtn${index}`;
+        function initLocation(index, targetLat, targetLng, radius, lokasiId, jamMasuk) {
+            const statusEl = document.getElementById(`locationStatus${index}`);
+            const distanceEl = document.getElementById(`distanceDisplay${index}`);
+            const btnEl = document.getElementById(`attendanceBtn${index}`);
+            const distanceValueEl = distanceEl.querySelector('.distance-value');
+            const accuracyValueEl = distanceEl.querySelector('.accuracy-value');
 
-            const map = L.map(mapId).setView([targetLat, targetLng], 16);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(map);
-
-            const targetMarker = L.circleMarker([targetLat, targetLng], {
-                radius: 8,
-                fillColor: "#667eea",
-                color: "#ffffff",
-                weight: 2,
-                opacity: 1,
-                fillOpacity: 0.8
-            }).addTo(map);
-
-            targetMarker.bindPopup(`<b>Lokasi Absen</b><br>${radius}m radius`).openPopup();
-
-            L.circle([targetLat, targetLng], {
-                color: '#667eea',
-                fillColor: '#667eea',
-                fillOpacity: 0.2,
-                radius: radius
-            }).addTo(map);
-
-            let userMarker = null;
-            let accuracyCircle = null;
+            if (!navigator.geolocation) {
+                statusEl.innerHTML =
+                    '<span class="status-badge status-inactive"><i class="fas fa-times"></i> Geolocation tidak didukung</span>';
+                return;
+            }
 
             function updateLocation(position) {
                 const userLat = position.coords.latitude;
                 const userLng = position.coords.longitude;
                 const accuracy = position.coords.accuracy;
-
                 const distance = calculateDistance(userLat, userLng, targetLat, targetLng);
-                document.getElementById(distanceId).textContent = `${Math.round(distance)}m`;
 
-                if (userMarker) {
-                    userMarker.setLatLng([userLat, userLng]);
+                distanceValueEl.textContent = `${Math.round(distance)}m`;
+                accuracyValueEl.textContent = `${Math.round(accuracy)}m`;
+
+                const effectiveDistance = Math.max(0, distance - accuracy);
+
+                if (effectiveDistance <= radius) {
+                    statusEl.innerHTML = `<span class="status-badge status-active">
+                        <i class="fas fa-check-circle"></i> Dalam radius absen (${radius}m)
+                    </span>`;
+                    btnEl.disabled = false;
+                    btnEl.innerHTML = `<i class="fas fa-fingerprint"></i> Absen Sekarang (${Math.round(distance)}m)`;
                 } else {
-                    userMarker = L.circleMarker([userLat, userLng], {
-                        radius: 6,
-                        fillColor: "#48bb78",
-                        color: "#ffffff",
-                        weight: 2,
-                        opacity: 1,
-                        fillOpacity: 0.8
-                    }).addTo(map).bindPopup("<b>Posisi Anda</b>").openPopup();
+                    statusEl.innerHTML = `<span class="status-badge status-inactive">
+                        <i class="fas fa-times-circle"></i> Di luar radius (${radius}m)
+                    </span>`;
+                    btnEl.disabled = true;
+                    btnEl.innerHTML = `<i class="fas fa-fingerprint"></i> Absen Sekarang`;
                 }
-
-                if (accuracyCircle) {
-                    accuracyCircle.setLatLng([userLat, userLng]);
-                    accuracyCircle.setRadius(accuracy);
-                } else {
-                    accuracyCircle = L.circle([userLat, userLng], {
-                        color: '#48bb78',
-                        fillColor: '#48bb78',
-                        fillOpacity: 0.2,
-                        radius: accuracy
-                    }).addTo(map);
-                }
-
-                const isWithinRadius = distance <= (radius + accuracy);
-                const statusElement = document.getElementById(statusId);
-                const button = document.getElementById(btnId);
-
-                if (isWithinRadius) {
-                    statusElement.className = "status-badge status-active";
-                    statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Dalam jangkauan';
-                    button.disabled = false;
-                } else {
-                    statusElement.className = "status-badge status-inactive";
-                    statusElement.innerHTML = '<i class="fas fa-times-circle"></i> Di luar jangkauan';
-                    button.disabled = true;
-                }
-
-                const group = new L.featureGroup([targetMarker, userMarker, accuracyCircle]);
-                map.fitBounds(group.getBounds().pad(0.5));
             }
 
-            function handleLocationError(error) {
-                const statusElement = document.getElementById(statusId);
-                const button = document.getElementById(btnId);
-
-                statusElement.className = "status-badge status-inactive";
-
+            function handleError(error) {
+                let errorMessage = 'Error lokasi';
                 switch (error.code) {
                     case error.PERMISSION_DENIED:
-                        statusElement.innerHTML = '<i class="fas fa-ban"></i> Akses lokasi ditolak';
+                        errorMessage = 'Izin lokasi ditolak';
                         break;
                     case error.POSITION_UNAVAILABLE:
-                        statusElement.innerHTML = '<i class="fas fa-question-circle"></i> Lokasi tidak tersedia';
+                        errorMessage = 'Informasi lokasi tidak tersedia';
                         break;
                     case error.TIMEOUT:
-                        statusElement.innerHTML = '<i class="fas fa-clock"></i> Timeout';
-                        break;
-                    default:
-                        statusElement.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error tidak diketahui';
+                        errorMessage = 'Permintaan lokasi timeout';
                         break;
                 }
 
-                button.disabled = true;
+                statusEl.innerHTML = `<span class="status-badge status-inactive">
+                    <i class="fas fa-exclamation-triangle"></i> ${errorMessage}
+                </span>`;
+                btnEl.disabled = true;
             }
 
-            if (navigator.geolocation) {
-                const options = {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
-                };
+            function checkTimeStatus(jamMasuk) {
+                if (!jamMasuk || jamMasuk === '--:--') return 'tepat waktu';
 
-                navigator.geolocation.watchPosition(updateLocation, handleLocationError, options);
+                const now = new Date();
+                const [hours, minutes] = jamMasuk.split(':').map(Number);
+                const jamBatas = new Date();
+                jamBatas.setHours(hours, minutes, 0, 0);
 
-                document.getElementById(btnId).addEventListener('click', function() {
-                    const loadingModal = showLoading('Mencatat absensi...');
-                    
-                    navigator.geolocation.getCurrentPosition(function(position) {
-                        fetch('{{ route('absen.store') }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                    'Accept': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    lokasi_id: lokasiId,
-                                    latitude: position.coords.latitude,
-                                    longitude: position.coords.longitude
-                                })
-                            })
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error('Network response was not ok');
-                                }
-                                return response.json();
-                            })
-                            .then(data => {
-                                hideLoading(loadingModal);
-                                showNotification('success', data.message || 'Absensi berhasil dicatat!');
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 1500);
-                            })
-                            .catch(error => {
-                                hideLoading(loadingModal);
-                                console.error('Error:', error);
-                                showNotification('danger', 'Terjadi kesalahan saat mencatat absensi: ' + error.message);
-                            });
-                    }, (error) => {
-                        hideLoading(loadingModal);
-                        showNotification('danger', 'Gagal mendapatkan lokasi: ' + error.message);
-                    });
-                });
-            } else {
-                document.getElementById(statusId).innerHTML =
-                    '<i class="fas fa-exclamation-triangle"></i> Geolocation tidak didukung';
-                document.getElementById(btnId).disabled = true;
+                return now > jamBatas.getTime() + 300000 ? 'terlambat' : 'tepat waktu';
             }
+
+            const locationOptions = {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            };
+
+            // First immediate check
+            navigator.geolocation.getCurrentPosition(
+                updateLocation,
+                handleError,
+                locationOptions
+            );
+
+            // Set up continuous updates
+            navigator.geolocation.watchPosition(
+                updateLocation,
+                handleError,
+                locationOptions
+            );
+
+            // Attendance button handler
+            btnEl.addEventListener('click', function() {
+                showLoading('Memverifikasi lokasi...');
+
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const userLat = position.coords.latitude;
+                    const userLng = position.coords.longitude;
+                    const accuracy = position.coords.accuracy;
+                    const distance = calculateDistance(userLat, userLng, targetLat, targetLng);
+                    const effectiveDistance = Math.max(0, distance - accuracy);
+                    const isInRadius = effectiveDistance <= radius;
+                    const isOntime = checkTimeStatus(jamMasuk);
+
+                    if (!isInRadius) {
+                        hideLoading();
+                        showNotification('error',
+                            'Anda berada di luar radius absen. Silahkan mendekat ke lokasi yang ditentukan.'
+                        );
+                        return;
+                    }
+
+                    showLoading('Mencatat absensi...');
+
+                    fetch('{{ route('absen.store') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                lokasi_id: lokasiId,
+                                latitude: userLat,
+                                longitude: userLng,
+                                type: 'masuk',
+                                status_waktu: isOntime,
+                                status_lokasi: 'dalam radius'
+                            })
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(err => Promise.reject(err));
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            hideLoading();
+                            showNotification('success', data.message);
+                            setTimeout(() => location.reload(), 2000);
+                        })
+                        .catch(error => {
+                            hideLoading();
+                            showNotification('error', error.message || 'Gagal melakukan absen');
+                        });
+                }, handleError, locationOptions);
+            });
         }
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3;
+            const R = 6371e3; // Earth radius in meters
             const φ1 = lat1 * Math.PI / 180;
             const φ2 = lat2 * Math.PI / 180;
             const Δφ = (lat2 - lat1) * Math.PI / 180;
             const Δλ = (lon2 - lon1) * Math.PI / 180;
 
-            const a = Math.sin(Δφ / 2) ** 2 +
+            const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
                 Math.cos(φ1) * Math.cos(φ2) *
-                Math.sin(Δλ / 2) ** 2;
+                Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
             return R * c;
         }
 
-        // Improved Loading Modal Functions
-        function showLoading(message) {
-            const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
-            document.getElementById('loadingMessage').textContent = message;
-            loadingModal.show();
-            return loadingModal;
+        function showLoading(text) {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loadingModal').style.display = 'flex';
         }
 
-        function hideLoading(modal) {
-            modal.hide();
+        function hideLoading() {
+            document.getElementById('loadingModal').style.display = 'none';
         }
 
-        // Improved Notification System
         function showNotification(type, message) {
-            const alertTypes = {
-                'success': {
-                    icon: 'fa-check-circle',
-                    color: 'success'
-                },
-                'danger': {
-                    icon: 'fa-exclamation-circle',
-                    color: 'danger'
-                },
-                'warning': {
-                    icon: 'fa-exclamation-triangle',
-                    color: 'warning'
-                },
-                'info': {
-                    icon: 'fa-info-circle',
-                    color: 'info'
-                }
+            const container = document.querySelector('.notification-container');
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
             };
 
-            const alertConfig = alertTypes[type] || alertTypes.info;
-            
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${alertConfig.color} alert-dismissible fade show custom-alert animate__animated animate__fadeInRight`;
-            alertDiv.role = 'alert';
-            
-            alertDiv.innerHTML = `
-                <div class="d-flex align-items-center">
-                    <i class="fas ${alertConfig.icon} alert-icon"></i>
-                    <div>${message}</div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+            const alert = document.createElement('div');
+            alert.className = `custom-alert alert-${type} alert-dismissible fade show`;
+            alert.innerHTML = `
+                <i class="fas ${icons[type]} alert-icon"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             `;
 
-            const container = document.querySelector('.notification-container');
-            container.insertBefore(alertDiv, container.firstChild);
+            container.appendChild(alert);
 
-            // Auto dismiss after 5 seconds
             setTimeout(() => {
-                alertDiv.classList.add('animate__fadeOutRight');
-                setTimeout(() => {
-                    alertDiv.remove();
-                }, 500);
+                alert.classList.remove('show');
+                setTimeout(() => alert.remove(), 150);
             }, 5000);
         }
     </script>
 </body>
+
 </html>

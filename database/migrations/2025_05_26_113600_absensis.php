@@ -30,8 +30,8 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id'); // Foreign key harus sesuai dengan users.id
             $table->unsignedBigInteger('lokasi_id'); // Foreign key ke tabel lokasis
             $table->enum('type', ['masuk', 'pulang', 'izin', 'sakit']);
-            $table->decimal('latitude', 10, 8); // Lokasi saat absen
-            $table->decimal('longitude', 10, 8); // Lokasi saat absen
+            $table->decimal('latitude', 11, 8);
+            $table->decimal('longitude', 12, 8);
             $table->string('address')->nullable(); // Alamat hasil reverse geocoding
             $table->enum('status_waktu', ['tepat waktu', 'terlambat']);
             $table->enum('status_lokasi', ['dalam radius', 'luar radius']);
