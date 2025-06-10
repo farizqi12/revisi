@@ -42,6 +42,11 @@ class Absen extends Controller
         return view('absensipulang', ['lokasis' => collect([$lokasi])]);
     }
 
+    public function showIzin()
+    {
+        return view('absensi-izin');
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -119,6 +124,19 @@ class Absen extends Controller
         $lokasi = Lokasi::findOrFail($request->lokasi_id);
         $today = now()->format('Y-m-d');
 
+        // Cek apakah user sudah absen izin atau sakit hari ini
+        $sudahIzinAtauSakit = Absensi::where('user_id', $user->id)
+            ->whereIn('type', ['izin', 'sakit'])
+            ->whereDate('created_at', $today)
+            ->exists();
+
+        if ($sudahIzinAtauSakit) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda sudah mengajukan izin/sakit hari ini, tidak perlu absen pulang.',
+            ], 422);
+        }
+
         // Cari data absen masuk hari ini
         $absenMasuk = Absensi::where('user_id', $user->id)
             ->where('type', 'masuk')
@@ -176,11 +194,59 @@ class Absen extends Controller
         $absenPulang->durasi = $durasiFormatted;
         $absenPulang->save();
 
-
         return response()->json([
             'success' => true,
             'message' => 'Absensi pulang berhasil dicatat.',
             'data' => $absenPulang
         ]);
+    }
+
+    public function storeIzin(Request $request)
+    {
+        $request->validate([
+            'alasan' => 'required|string|max:255',
+            'type' => 'required|in:izin,sakit',
+            'notes' => 'nullable|string',
+        ]);
+
+        $user = Auth::user();
+        $today = now()->format('Y-m-d');
+
+        // Cek apakah sudah ada absen masuk hari ini
+        $sudahMasuk = Absensi::where('user_id', $user->id)
+            ->where('type', 'masuk')
+            ->whereDate('created_at', $today)
+            ->exists();
+
+        if ($sudahMasuk) {
+            return redirect()->back()->with('error', 'Anda sudah melakukan absen masuk hari ini, tidak dapat mengajukan izin/sakit.');
+        }
+
+        // Cek apakah sudah ada absen izin/sakit hari ini
+        $sudahIzin = Absensi::where('user_id', $user->id)
+            ->whereIn('type', ['izin', 'sakit'])
+            ->whereDate('created_at', $today)
+            ->exists();
+
+        if ($sudahIzin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda sudah mengajukan izin/sakit hari ini.',
+            ], 422);
+        }
+
+        // Karena latitude, longitude, status_waktu, dan status_lokasi tidak nullable, kita beri nilai default
+        $absensi = new Absensi();
+        $absensi->user_id = $user->id;
+        $absensi->lokasi_id = null; // tidak ada lokasi saat izin/sakit
+        $absensi->type = $request->type;
+        $absensi->latitude = 0; // default atau bisa diganti dengan -1 untuk penanda non-lokasi
+        $absensi->longitude = 0;
+        $absensi->status_lokasi = 'luar radius'; // default agar sesuai enum
+        $absensi->status_waktu = 'tepat waktu'; // default agar sesuai enum
+        $absensi->notes = $request->notes ?? $request->alasan;
+        $absensi->save();
+
+        return redirect()->back()->with('success', 'Izin berhasil diajukan.');
     }
 }

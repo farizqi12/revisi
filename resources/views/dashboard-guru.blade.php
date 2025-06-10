@@ -533,7 +533,7 @@
                     <i class="fas fa-sign-out-alt text-danger"></i>
                     <span>Absen Pulang</span>
                 </a>
-                <a href="/izin" class="action-btn btn-outline-secondary text-decoration-none">
+                <a href="/absensi-izin" class="action-btn btn-outline-secondary text-decoration-none">
                     <i class="fas fa-procedures text-secondary"></i>
                     <span>Izin</span>
                 </a>

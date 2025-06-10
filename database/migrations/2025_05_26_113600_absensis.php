@@ -28,7 +28,7 @@ return new class extends Migration
         Schema::create('absensis', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id'); // Foreign key harus sesuai dengan users.id
-            $table->unsignedBigInteger('lokasi_id'); // Foreign key ke tabel lokasis
+            $table->unsignedBigInteger('lokasi_id')->nullable(); // Foreign key ke tabel lokasis, bisa null
             $table->enum('type', ['masuk', 'pulang', 'izin', 'sakit']);
             $table->decimal('latitude', 11, 8);
             $table->decimal('longitude', 12, 8);
