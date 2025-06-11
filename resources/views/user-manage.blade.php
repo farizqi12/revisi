@@ -121,6 +121,18 @@
             transition: all 0.3s;
         }
 
+        .btn-info {
+            border-radius: 8px;
+            padding: 8px 20px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
         .btn-success:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
@@ -240,7 +252,7 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link active" href="/user-manage">
-                        <i class="fas fa-user"></i> Kelola Pengguna </a>
+                            <i class="fas fa-user"></i> Kelola Pengguna </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/kelola-transaksi">
@@ -252,7 +264,7 @@
                             <i class="fas fa-calendar-check me-1"></i> Pantau Absen
                         </a>
                     </li>
-                     <li class="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link" href="/atur-absen">
                             <i class="fa-solid fa-location-crosshairs"></i> Atur Lokasi Absen
                         </a>
@@ -316,6 +328,7 @@
                             <th>Tanggal Daftar</th>
                             <th>Tanggal Diubah</th>
                             <th>Aksi</th>
+                            <th>Info Absensi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -344,6 +357,11 @@
                                     <button class="btn btn-sm btn-danger delete-user" data-id="{{ $user->id }}"
                                         data-name="{{ $user->name }}" title="Hapus">
                                         <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-info" title="Lihat Absensi">
+                                        <i class="fas fa-eye"></i>
                                     </button>
                                 </td>
                             </tr>
