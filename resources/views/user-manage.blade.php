@@ -360,9 +360,11 @@
                                     </button>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-info" title="Lihat Absensi">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
+                                    <a href="{{ route('riwayat.absen.id', ['id' => $user->id]) }}">
+                                        <button class="btn btn-sm btn-info" title="Lihat Absensi">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </a>
                                 </td>
                             </tr>
                         @empty

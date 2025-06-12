@@ -37,6 +37,7 @@ Route::middleware(['auth', 'only.kepala.sekolah'])->group(function () {
     Route::get('/transaksi/{id}/invoice', [KelolaTransaksi::class, 'showInvoice'])->name('transaksi.invoice');
 
     Route::get('/pantau-absen', [App\Http\Controllers\PantauAbsen::class, 'show'])->name('pantau.absen');
+    Route::get('/riwayat-absensi-id/{id}', [App\Http\Controllers\RiwayatAbsen::class, 'showid'])->name('riwayat.absen.id');
 });
 
 Route::middleware(['auth', 'only.guru'])->group(function () {
