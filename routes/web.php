@@ -35,6 +35,8 @@ Route::middleware(['auth', 'only.kepala.sekolah'])->group(function () {
     Route::get('/reverse-geocode', [AturAbsen::class, 'reverseGeocode'])->name('lokasi.reverse');
 
     Route::get('/transaksi/{id}/invoice', [KelolaTransaksi::class, 'showInvoice'])->name('transaksi.invoice');
+
+    Route::get('/pantau-absen', [App\Http\Controllers\PantauAbsen::class, 'show'])->name('pantau.absen');
 });
 
 Route::middleware(['auth', 'only.guru'])->group(function () {
