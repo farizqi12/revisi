@@ -306,6 +306,11 @@
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
                     <i class="fas fa-plus me-1"></i>Tambah Pengguna
                 </button>
+                <a href="{{ route('users.export') }}" class="btn btn-success">
+                    <i class="fas fa-file-excel me-1"></i> Export Excel
+                </a>
+
+
             </div>
 
             <div class="search-box">

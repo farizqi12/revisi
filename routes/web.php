@@ -21,6 +21,8 @@ Route::middleware(['auth', 'only.kepala.sekolah'])->group(function () {
     Route::post('/users/delete', [ManageUser::class, 'delete'])->name('users.delete');
     Route::get('/users/search', [ManageUser::class, 'search'])->name('users.search');
     Route::get('/users', [ManageUser::class, 'index'])->name('users.index');
+    Route::get('/export-user', [ManageUser::class, 'export'])->name('users.export');
+
 
     Route::get('/kelola-transaksi', [KelolaTransaksi::class, 'show'])->name('kelola.transaksi');
     Route::get('/transaksi/filter', [KelolaTransaksi::class, 'filter'])->name('admin.transaksi.filter');
