@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+// ----------------------------------------
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Border;
@@ -113,53 +114,5 @@ class ManageUser extends Controller
             ->get();
 
         return view('user-manage', compact('users'));
-    }
-
-
-    public function export()
-    {
-        $users = User::all(); // Sesuaikan jika ada filter dari search atau lainnya
-
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-
-        // Header tabel
-        $headers = ['No', 'Nama', 'Username', 'Role', 'Tanggal Daftar', 'Tanggal Diubah'];
-        $sheet->fromArray($headers, null, 'A1');
-
-        $row = 2;
-        $no = 1;
-
-        foreach ($users as $user) {
-            $sheet->setCellValue("A{$row}", $no++);
-            $sheet->setCellValue("B{$row}", $user->name);
-            $sheet->setCellValue("C{$row}", $user->username);
-            $sheet->setCellValue("D{$row}", ucfirst($user->role));
-            $sheet->setCellValue("E{$row}", $user->created_at->format('d/m/Y H:i'));
-            $sheet->setCellValue("F{$row}", $user->updated_at->format('d/m/Y H:i'));
-            $row++;
-        }
-
-        // Styling
-        $lastRow = $row - 1;
-        $sheet->getStyle("A1:F$lastRow")->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-        $sheet->getStyle("A1:F1")->getFont()->setBold(true);
-        $sheet->getStyle("A1:F$lastRow")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-        $sheet->getStyle("A1:F1")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('D9D9D9');
-
-        foreach (range('A', 'F') as $col) {
-            $sheet->getColumnDimension($col)->setAutoSize(true);
-        }
-
-        // Export file
-        $filename = 'Data_Pengguna_' . now()->format('Ymd_His') . '.xlsx';
-        $writer = new Xlsx($spreadsheet);
-
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header("Content-Disposition: attachment; filename=\"$filename\"");
-        header('Cache-Control: max-age=0');
-
-        $writer->save('php://output');
-        exit;
     }
 }

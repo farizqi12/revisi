@@ -260,7 +260,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="/pantau-absen">
                             <i class="fas fa-calendar-check me-1"></i> Pantau Absen
                         </a>
                     </li>
@@ -306,11 +306,6 @@
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
                     <i class="fas fa-plus me-1"></i>Tambah Pengguna
                 </button>
-                <a href="{{ route('users.export') }}" class="btn btn-success">
-                    <i class="fas fa-file-excel me-1"></i> Export Excel
-                </a>
-
-
             </div>
 
             <div class="search-box">

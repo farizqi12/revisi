@@ -699,7 +699,7 @@
 </head>
 
 <body>
-   <nav class="navbar navbar-expand-lg fixed-top">
+    <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="/dashboard">
                 <i class="fas fa-tachometer-alt me-2"></i>Dashboard
@@ -712,7 +712,7 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="/user-manage">
-                        <i class="fas fa-user"></i> Kelola Pengguna </a>
+                            <i class="fas fa-user"></i> Kelola Pengguna </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/kelola-transaksi">
@@ -724,7 +724,7 @@
                             <i class="fas fa-calendar-check me-1"></i> Pantau Absen
                         </a>
                     </li>
-                     <li class="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link" href="/atur-absen">
                             <i class="fa-solid fa-location-crosshairs"></i> Atur Lokasi Absen
                         </a>
@@ -762,7 +762,41 @@
             <div class="location-title">
                 <i class="fas fa-clipboard-list"></i> Riwayat Absensi
             </div>
+            <div class="d-flex justify-content-end mb-3">
+                <form method="GET" action="{{ route('pantau.absen.now') }}">
+                    <input type="hidden" name="filter" value="today">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter me-1"></i> Sort Hari Ini
+                    </button>
+                </form>
+            </div>
 
+            <div class="d-flex justify-content-end mb-3">
+                <form method="GET" action="{{ route('pantau.absen.sort') }}">
+                    <div class="input-group">
+                        <select name="year" class="form-select">
+                            @foreach (range(date('Y'), date('Y') + 10) as $year)
+                                <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>
+                                    {{ $year }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <select name="month" class="form-select">
+                            @foreach (range(1, 12) as $month)
+                                <option value="{{ $month }}" {{ request('month') == $month ? 'selected' : '' }}>
+                                    {{ DateTime::createFromFormat('!m', $month)->format('F') }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-1"></i> Sort Tahun & Bulan
+                        </button>
+                        <a href="{{ route('pantau.absen.export', request()->query()) }}" class="btn btn-success">
+                            <i class="fas fa-file-excel me-1"></i> Export Excel
+                        </a>
+                    </div>
+                </form>
+            </div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">

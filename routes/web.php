@@ -39,6 +39,9 @@ Route::middleware(['auth', 'only.kepala.sekolah'])->group(function () {
     Route::get('/transaksi/{id}/invoice', [KelolaTransaksi::class, 'showInvoice'])->name('transaksi.invoice');
 
     Route::get('/pantau-absen', [App\Http\Controllers\PantauAbsen::class, 'show'])->name('pantau.absen');
+    Route::get('/pantau-absen-now', [App\Http\Controllers\PantauAbsen::class, 'showNow'])->name('pantau.absen.now');
+    Route::get('/pantau-absen-sort', [App\Http\Controllers\PantauAbsen::class, 'showSort'])->name('pantau.absen.sort');
+    Route::get('/pantau-absen-export', [App\Http\Controllers\PantauAbsen::class, 'export'])->name('pantau.absen.export');
     Route::get('/riwayat-absensi-id/{id}', [App\Http\Controllers\RiwayatAbsen::class, 'showid'])->name('riwayat.absen.id');
 });
 

@@ -411,7 +411,7 @@
 </head>
 
 <body>
-    <!-- Navbar Guru-->
+    <!-- Navbar-guru -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="/dashboard-guru">
@@ -424,8 +424,9 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-user"></i> Profil Saya </a>
+                        <a class="nav-link" href="/profil">
+                            <i class="fas fa-user"></i> Profil Saya
+                        </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/riwayat-topup">
@@ -433,8 +434,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-calendar-check me-1"></i> Pantau Absen
+                        <a class="nav-link" href="/riwayat-absensi">
+                            <i class="fas fa-clipboard-list"></i> Riwayat Absensi
                         </a>
                     </li>
                 </ul>
@@ -442,7 +443,7 @@
                     <form method="POST" action="/logout" id="logoutForm">
                         @csrf
                         <button type="submit" class="btn btn-logout">
-                            <i class="fas fa-sign-out-alt me-1"></i> Logout
+                            <i class="fas fa-sign-out-alt"></i> Logout
                         </button>
                     </form>
                 </div>

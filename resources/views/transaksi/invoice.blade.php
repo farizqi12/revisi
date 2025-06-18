@@ -1,7 +1,7 @@
 <div class="invoice-pos">
     <div class="header">
-        <div class="title" style="font-weight: bold; font-size: 16px;">NAMA PERUSAHAAN/COOP</div>
-        <div class="subtitle" style="font-size: 12px;">Alamat Perusahaan</div>
+        <div class="title" style="font-weight: bold; font-size: 16px;">SDIT ARRAHMAH LUMAJANG</div>
+        <div class="subtitle" style="font-size: 12px;">Jl. RA Kartini No.08, Pandanwangi, Tukum, Kec. Tekung, Kabupaten Lumajang, Jawa Timur 67381</div>
         <div class="subtitle" style="font-size: 12px;">Telp: 08123456789</div>
     </div>
 
