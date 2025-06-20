@@ -472,6 +472,7 @@
             </div>
         </div>
     </nav>
+
     <!-- Main Content -->
     <div class="main-container animate__animated animate__fadeIn">
         <div class="welcome-card card-hover">
@@ -483,7 +484,7 @@
                     </h2>
                     <p class="text-muted mb-4">Anda telah berhasil login ke sistem kami</p>
                 </div>
-                <a href="" class="text-decoration-none">
+                <a href="/profil" class="text-decoration-none">
                     <div class="user-avatar overflow-hidden">
                         @if (!empty($userPhotoUrl))
                             <img src="{{ $userPhotoUrl }}" alt="Foto Profil" class="w-100 h-100"
@@ -538,6 +539,13 @@
                     <span>Izin</span>
                 </a>
             </div>
+        </div>
+
+        <div class="welcome-card card-hover">
+            <h3 class="welcome-title mb-3">
+                <i class="fas fa-tasks"></i> Tugas dan Kegiatan
+            </h3>
+            <p class="text-muted mb-4">Kelola tugas dan kegiatan Anda di sini</p>
         </div>
     </div>
 

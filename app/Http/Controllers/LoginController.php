@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Absensi;
 use App\Models\Tabungan;
 use Illuminate\Http\Request;
 use App\Models\User;

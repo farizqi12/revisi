@@ -87,10 +87,10 @@ class PantauAbsen extends Controller
     public function export()
     {
         try {
-            // Mendapatkan parameter dari request yang sama dengan view
+            // Mendapatkan parameter dari request
             $today = now()->toDateString();
-            $year = request('year') ?? null;
-            $month = request('month') ?? null;
+            $year = request('year');
+            $month = request('month');
             $filter = request('filter');
 
             // Membuat query dasar
@@ -103,18 +103,23 @@ class PantauAbsen extends Controller
                 }
             ]);
 
-            // Menerapkan filter yang sama dengan view
-            if ($filter === 'today' || request()->fullUrlIs(route('pantau-absen.now'))) {
-                // Filter untuk tampilan hari ini
-                $query->whereDate('created_at', $today)
-                    ->orderBy('created_at', 'desc');
-            } elseif ($year && $month || request()->fullUrlIs(route('pantau-absen.sort'))) {
-                // Filter untuk tampilan bulan/tahun tertentu
-                $query->whereYear('created_at', $year)
-                    ->whereMonth('created_at', $month)
-                    ->orderBy('created_at', 'desc');
+            // Memeriksa apakah ada parameter filter yang aktif
+            $hasActiveFilter = request()->has('filter') || request()->has('year') || request()->has('month');
+
+            // Menerapkan filter hanya jika ada parameter yang aktif
+            if ($hasActiveFilter) {
+                if ($filter === 'today' || request()->fullUrlIs(route('pantau-absen.now'))) {
+                    // Filter untuk tampilan hari ini
+                    $query->whereDate('created_at', $today)
+                        ->orderBy('created_at', 'desc');
+                } elseif ($year && $month || request()->fullUrlIs(route('pantau-absen.sort'))) {
+                    // Filter untuk tampilan bulan/tahun tertentu
+                    $query->whereYear('created_at', $year)
+                        ->whereMonth('created_at', $month)
+                        ->orderBy('created_at', 'desc');
+                }
             } else {
-                // Default (tampilan semua data)
+                // Jika tidak ada filter, tampilkan semua data
                 $query->orderBy('created_at', 'desc');
             }
 
@@ -136,65 +141,38 @@ class PantauAbsen extends Controller
                 'Nama Lokasi',
                 'Alamat Lokasi',
                 'Tipe Lokasi',
-                'Radius Lokasi (m)',
-                'Koordinat Absen',
-                'Koordinat Acuan',
                 'Durasi',
                 'Catatan',
-                'Jam Masuk Lokasi',
-                'Jam Pulang Lokasi'
             ];
             $sheet->fromArray($headers, null, 'A1');
 
-            // Isi data
             $row = 2;
             foreach ($absensi as $index => $absen) {
                 $sheet->setCellValue("A{$row}", $index + 1);
                 $sheet->setCellValue("B{$row}", $absen->user->name ?? '-');
-                $sheet->setCellValue("C{$row}", $absen->created_at->format('d-m-Y H:i:s'));
+                $sheet->setCellValue("C{$row}", $absen->created_at ? $absen->created_at->format('d-m-Y H:i:s') : '-');
                 $sheet->setCellValue("D{$row}", ucfirst($absen->type ?? '-'));
                 $sheet->setCellValue("E{$row}", ucfirst($absen->status_waktu ?? '-'));
                 $sheet->setCellValue("F{$row}", ucfirst($absen->status_lokasi ?? '-'));
-
-                // Data lokasi
                 $sheet->setCellValue("G{$row}", $absen->lokasi->name ?? '-');
                 $sheet->setCellValue("H{$row}", $absen->lokasi->alamat ?? '-');
                 $sheet->setCellValue("I{$row}", $absen->lokasi->type ?? '-');
-                $sheet->setCellValue("J{$row}", $absen->lokasi->radius ?? '-');
-
-                // Koordinat
-                $sheet->setCellValue(
-                    "K{$row}",
-                    ($absen->latitude && $absen->longitude) ?
-                        number_format($absen->latitude, 6) . ', ' . number_format($absen->longitude, 6) : '-'
-                );
-                $sheet->setCellValue(
-                    "L{$row}",
-                    ($absen->lokasi && $absen->lokasi->latitude && $absen->lokasi->longitude) ?
-                        number_format($absen->lokasi->latitude, 6) . ', ' . number_format($absen->lokasi->longitude, 6) : '-'
-                );
-
-                // Detail tambahan
-                $sheet->setCellValue("M{$row}", $absen->durasi ?? '-');
-                $sheet->setCellValue("N{$row}", $absen->notes ?? '-');
-                $sheet->setCellValue("O{$row}", $absen->lokasi->jam_masuk ?? '-');
-                $sheet->setCellValue("P{$row}", $absen->lokasi->jam_sampai ?? '-');
-
+                $sheet->setCellValue("J{$row}", $absen->durasi ?? '-');
+                $sheet->setCellValue("K{$row}", $absen->notes ?? '-');
                 $row++;
             }
 
-            // Styling
+            $lastCol = 'K';
             $lastRow = $row - 1;
-            $sheet->getStyle("A1:P{$lastRow}")->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-            $sheet->getStyle("A1:P1")->getFont()->setBold(true);
-            $sheet->getStyle("A1:P{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-            $sheet->getStyle("A1:P1")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('D9D9D9');
+            $sheet->getStyle("A1:{$lastCol}{$lastRow}")->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+            $sheet->getStyle("A1:{$lastCol}1")->getFont()->setBold(true);
+            $sheet->getStyle("A1:{$lastCol}{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+            $sheet->getStyle("A1:{$lastCol}1")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('D9D9D9');
 
-            foreach (range('A', 'P') as $col) {
+            foreach (range('A', $lastCol) as $col) {
                 $sheet->getColumnDimension($col)->setAutoSize(true);
             }
 
-            // Export file
             $filename = 'Data_Absensi_' . now()->format('Ymd_His') . '.xlsx';
             $writer = new Xlsx($spreadsheet);
 
@@ -205,7 +183,7 @@ class PantauAbsen extends Controller
             $writer->save('php://output');
             exit;
         } catch (\Exception $e) {
-            Log::error('Error in PantauAbsen@export: ' . $e->getMessage());
+            Log::error('Error in RiwayatAbsen@export: ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan saat mengekspor data absensi');
         }
     }

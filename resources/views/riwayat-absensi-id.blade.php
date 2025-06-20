@@ -713,7 +713,7 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="/user-manage">
-                        <i class="fas fa-user"></i> Kelola Pengguna </a>
+                            <i class="fas fa-user"></i> Kelola Pengguna </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/kelola-transaksi">
@@ -725,7 +725,7 @@
                             <i class="fas fa-calendar-check me-1"></i> Pantau Absen
                         </a>
                     </li>
-                     <li class="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link" href="/atur-absen">
                             <i class="fa-solid fa-location-crosshairs"></i> Atur Lokasi Absen
                         </a>

@@ -42,7 +42,10 @@ Route::middleware(['auth', 'only.kepala.sekolah'])->group(function () {
     Route::get('/pantau-absen-now', [App\Http\Controllers\PantauAbsen::class, 'showNow'])->name('pantau.absen.now');
     Route::get('/pantau-absen-sort', [App\Http\Controllers\PantauAbsen::class, 'showSort'])->name('pantau.absen.sort');
     Route::get('/pantau-absen-export', [App\Http\Controllers\PantauAbsen::class, 'export'])->name('pantau.absen.export');
-    Route::get('/riwayat-absensi-id/{id}', [App\Http\Controllers\RiwayatAbsen::class, 'showid'])->name('riwayat.absen.id');
+
+
+    Route::get('/riwayat-absensi-id/{id}', [App\Http\Controllers\ManageUser::class, 'showid'])->name('riwayat.absen.id');
+
 });
 
 Route::middleware(['auth', 'only.guru'])->group(function () {
@@ -65,4 +68,7 @@ Route::middleware(['auth', 'only.guru'])->group(function () {
     Route::post('/absenizin', [App\Http\Controllers\Absen::class, 'storeIzin'])->name('absen.izin.store');
 
     Route::get('/riwayat-absensi', [App\Http\Controllers\RiwayatAbsen::class, 'show'])->name('riwayat.absen');
+    Route::get('/riwayat-absen-now', [App\Http\Controllers\RiwayatAbsen::class, 'showNow'])->name('riwayat.absen.now');
+    Route::get('/riwayat-absen-sort', [App\Http\Controllers\RiwayatAbsen::class, 'showSort'])->name('riwayat.absen.sort');
+    Route::get('/riwayat-absen-export', [App\Http\Controllers\RiwayatAbsen::class, 'export'])->name('riwayat.absen.export');
 });

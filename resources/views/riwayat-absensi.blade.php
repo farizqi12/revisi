@@ -760,6 +760,42 @@
                 <i class="fas fa-clipboard-list"></i> Riwayat Absensi
             </div>
 
+            <div class="d-flex justify-content-end mb-3">
+                <form method="GET" action="{{ route('riwayat.absen.now') }}">
+                    <input type="hidden" name="filter" value="today">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter me-1"></i> Sort Hari Ini
+                    </button>
+                </form>
+            </div>
+
+            <div class="d-flex justify-content-end mb-3">
+                <form method="GET" action="{{ route('riwayat.absen.sort') }}">
+                    <div class="input-group">
+                        <select name="year" class="form-select">
+                            @foreach (range(date('Y'), date('Y') + 10) as $year)
+                                <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>
+                                    {{ $year }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <select name="month" class="form-select">
+                            @foreach (range(1, 12) as $month)
+                                <option value="{{ $month }}" {{ request('month') == $month ? 'selected' : '' }}>
+                                    {{ DateTime::createFromFormat('!m', $month)->format('F') }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-1"></i> Sort Tahun & Bulan
+                        </button>
+                        <a href="{{ route('riwayat.absen.export', request()->query()) }}" class="btn btn-success">
+                            <i class="fas fa-file-excel me-1"></i> Export Excel
+                        </a>
+                    </div>
+                </form>
+            </div>
+
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">

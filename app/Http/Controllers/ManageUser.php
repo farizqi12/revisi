@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Absensi;
+use Illuminate\Support\Facades\Log;
 // ----------------------------------------
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -115,4 +117,27 @@ class ManageUser extends Controller
 
         return view('user-manage', compact('users'));
     }
+
+    public function showid($id)
+    {
+        try {
+            // Ambil user berdasarkan ID yang diterima dari request
+            $user = User::findOrFail($id);
+
+            // Ambil absensi user yang dipilih
+            $absensi = Absensi::where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
+
+            return view('riwayat-absensi-id', compact('absensi', 'user')); // Kirim user bukan user_id
+        } catch (\Exception $e) {
+            // Log error jika diperlukan
+            Log::error('Error in RiwayatAbsen@show: ' . $e->getMessage());
+
+            // Redirect ke halaman sebelumnya dengan pesan error
+            return back()->with('error', 'Terjadi kesalahan saat memuat riwayat absensi');
+        }
+    }
+
+   
 }
