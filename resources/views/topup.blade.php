@@ -13,83 +13,157 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <style>
         :root {
-            --primary-gradient: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
             --primary-light: #667eea;
             --primary-dark: #764ba2;
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.18);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding-top: 70px;
-            opacity: 0;
-            animation: fadeIn 1s ease-in-out forwards;
+            padding-top: 80px;
+            position: relative;
+            overflow-x: hidden;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
+        /* Animated Background Elements */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            pointer-events: none;
+            z-index: -1;
+        }
 
-            to {
-                opacity: 1;
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .shape {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .shape:nth-child(1) {
+            top: 10%;
+            left: 20%;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            top: 70%;
+            right: 10%;
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(45deg);
+            animation-delay: 2s;
+        }
+
+        .shape:nth-child(3) {
+            bottom: 20%;
+            left: 10%;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 50%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
             }
         }
 
         /* Navbar */
         .navbar {
-            background: var(--primary-gradient);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            padding: 0.8rem 2rem;
-            transform: translateY(-20px);
-            opacity: 0;
-            animation: slideDown 0.8s ease-out 0.3s forwards;
-        }
-
-        @keyframes slideDown {
-            from {
-                transform: translateY(-20px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 1rem 2rem;
+            transition: all 0.3s ease;
         }
 
         .navbar-brand {
-            font-weight: 600;
+            font-weight: 700;
             color: white !important;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
             display: flex;
             align-items: center;
         }
 
         .navbar-brand i {
-            transition: transform 0.3s ease;
-        }
-
-        .navbar-brand:hover i {
-            transform: rotate(15deg);
+            margin-right: 10px;
+            font-size: 1.2rem;
         }
 
         .nav-link {
             color: rgba(255, 255, 255, 0.9) !important;
-            padding: 0.5rem 1rem;
-            margin: 0 0.2rem;
-            border-radius: 8px;
-            transition: all 0.3s;
+            padding: 0.7rem 1.2rem;
+            margin: 0 0.3rem;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
             display: flex;
             align-items: center;
-            gap: 8px;
         }
 
         .nav-link i {
-            font-size: 0.9em;
+            margin-right: 8px;
             width: 20px;
             text-align: center;
+            font-size: 1rem;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
         }
 
         .nav-link:hover,
@@ -100,147 +174,90 @@
         }
 
         .navbar-toggler {
-            border-color: rgba(255, 255, 255, 0.2);
-            transition: all 0.3s;
+            border: none;
+            padding: 0.5rem;
+            color: white;
         }
 
-        .navbar-toggler:hover {
-            transform: scale(1.1);
+        .navbar-toggler:focus {
+            box-shadow: none;
         }
 
-        .navbar-toggler-icon {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-        }
-
-        /* Main Content */
+        /* Main Container */
         .main-container {
             padding: 2rem;
             max-width: 1400px;
             margin: 0 auto;
-            transform: translateY(20px);
-            opacity: 0;
-            animation: slideUp 0.8s ease-out 0.6s forwards;
+            position: relative;
         }
 
-        @keyframes slideUp {
-            from {
-                transform: translateY(20px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .welcome-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        /* Glass Card Effect */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             padding: 2rem;
             margin-bottom: 2rem;
-            border: none;
-            transition: all 0.5s ease;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
         }
 
-        .welcome-card::before {
+        .glass-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 5px;
-            background: var(--primary-gradient);
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
         }
 
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        .glass-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
         }
 
-        .welcome-title {
-            color: var(--primary-dark);
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-        }
-
-        .welcome-title i {
-            margin-right: 10px;
-            animation: wave 2s infinite;
-        }
-
-        @keyframes wave {
-
-            0%,
-            100% {
-                transform: rotate(0deg);
-            }
-
-            25% {
-                transform: rotate(15deg);
-            }
-
-            75% {
-                transform: rotate(-15deg);
-            }
-        }
-
-        .btn-logout {
-            background: #e74c3c;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 20px;
-            font-weight: 600;
+        .card-title {
             color: white;
-            transition: all 0.3s;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 1rem;
         }
 
-        .btn-logout:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
-        }
-
-        .text-gradient {
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 700;
-        }
-
-        .balance-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        .card-title i {
+            background: var(--success-gradient);
+            padding: 12px;
             border-radius: 12px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Balance Card */
+        .balance-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            border-radius: 16px;
             padding: 1.5rem;
             margin-top: 1.5rem;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .balance-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
-            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
         }
 
         .balance-icon {
-            background: rgba(72, 187, 120, 0.1);
+            background: rgba(255, 255, 255, 0.2);
             width: 50px;
             height: 50px;
             border-radius: 50%;
@@ -250,32 +267,169 @@
             transition: transform 0.3s ease;
         }
 
+        .balance-icon i {
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .balance-card:hover .balance-icon {
+            transform: rotate(15deg);
+        }
+
+        .balance-amount {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Form Styles */
+        .form-label {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .input-group-text {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 12px 0 0 12px !important;
+        }
+
+        /* Modern Buttons */
+        .modern-btn {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 12px;
+            padding: 0.8rem 1.5rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modern-btn i {
+            margin-right: 8px;
+            font-size: 0.9rem;
+        }
+
+        .modern-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .modern-btn:hover::before {
+            left: 100%;
+        }
+
+        .modern-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-logout {
+            background: var(--secondary-gradient);
+            border: none;
+            border-radius: 12px;
+            padding: 0.8rem 1.5rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-logout i {
+            margin-right: 8px;
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Alerts */
+        .modern-alert {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            color: white;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .modern-alert i {
+            margin-right: 12px;
+            font-size: 1.2rem;
+        }
+
+        .modern-alert.alert-success {
+            border-left: 4px solid #4CAF50;
+        }
+
+        .modern-alert.alert-danger {
+            border-left: 4px solid #f44336;
+        }
+
+        .modern-alert.alert-warning {
+            border-left: 4px solid #FF9800;
+        }
+
+        .modern-alert.alert-info {
+            border-left: 4px solid #2196F3;
+        }
+
+        /* User Avatar */
         .user-avatar {
-            background: rgba(102, 126, 234, 0.1);
+            background: rgba(255, 255, 255, 0.2);
             width: 60px;
             height: 60px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.3s ease;
-        }
-
-        .balance-footer {
-            display: flex;
-            align-items: center;
-        }
-
-        .user-avatar {
-            position: relative;
-            padding: 4px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-        }
-
-        .user-avatar img {
-            border-radius: 50%;
-            background: white;
-            padding: 2px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.3);
             transition: transform 0.3s ease;
         }
 
@@ -283,143 +437,101 @@
             transform: scale(1.05);
         }
 
-        .user-avatar:hover img {
-            transform: scale(0.95);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-        }
-
-        .balance-card:hover {
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
-            transform: scale(1.01);
-        }
-
-        .balance-card:hover .balance-icon {
-            transform: rotate(15deg);
-        }
-
-        /* Action Buttons */
-        .action-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 2rem;
-        }
-
-        .action-btn {
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            position: relative;
-            overflow: hidden;
-            border: none;
-            background: white;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        .action-btn i {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .action-btn span {
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .action-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .action-btn:hover i {
-            transform: scale(1.2);
-        }
-
-        .action-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: var(--primary-gradient);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.3s ease;
-        }
-
-        .action-btn:hover::before {
-            transform: scaleX(1);
-        }
-
-        /* Badges */
-        .badge {
-            padding: 6px 10px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-
-        /* Responsive */
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .navbar-collapse {
-                padding: 1rem;
-                background: var(--primary-gradient);
-                border-radius: 0 0 15px 15px;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            }
-
-            .nav-item {
-                margin-bottom: 0.5rem;
-            }
-
             .main-container {
                 padding: 1rem;
             }
 
-            .welcome-card .d-flex {
-                flex-direction: column;
-                align-items: flex-start !important;
+            .glass-card {
+                padding: 1.5rem;
             }
 
-            .user-avatar {
+            .card-title {
+                font-size: 1.5rem;
+            }
+
+            .navbar-collapse {
+                background: var(--glass-bg);
+                backdrop-filter: blur(20px);
+                border-radius: 12px;
                 margin-top: 1rem;
-                align-self: flex-end;
+                padding: 1rem;
             }
 
-            .action-grid {
-                grid-template-columns: repeat(2, 1fr);
+            .balance-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .balance-icon {
+                margin-bottom: 0.5rem;
             }
         }
 
         @media (max-width: 576px) {
-            .action-grid {
-                grid-template-columns: 1fr;
+            .card-title {
+                font-size: 1.3rem;
+                flex-direction: column;
+                text-align: center;
+                gap: 0.5rem;
             }
+
+            .card-title i {
+                padding: 8px;
+                font-size: 1rem;
+            }
+
+            .balance-amount {
+                font-size: 1.5rem;
+            }
+
+            .modern-btn {
+                padding: 0.7rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
         }
     </style>
 </head>
 
 <body>
-    <!-- Navbar-guru -->
+    <!-- Floating Background Shapes -->
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="/dashboard-guru">
-                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                <i class="fas fa-tachometer-alt"></i> Dashboard
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+                <i class="fas fa-bars"></i>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
@@ -429,7 +541,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/riwayat-topup">
+                        <a class="nav-link active" href="/riwayat-topup">
                             <i class="fas fa-history"></i> Riwayat Transaksi
                         </a>
                     </li>
@@ -452,119 +564,84 @@
     </nav>
 
     <!-- Main Content -->
-    <div class="main-container">
+    <div class="main-container animate__animated animate__fadeIn">
+        <!-- Success Alert -->
         @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="modern-alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i>
+                <div>{{ session('success') }}</div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
+        <!-- Error Alert -->
         @if (session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="modern-alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i>
+                <div>{{ session('error') }}</div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
-        <div class="welcome-card card-hover animate__animated" data-animation="animate__fadeInDown">
-            <div class="d-flex justify-content-between align-items-center">
+
+        <!-- Main Card -->
+        <div class="glass-card animate__animated animate__fadeInDown">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
                 <div>
-                    <h2 class="welcome-title">
+                    <h2 class="card-title">
                         <i class="fas fa-wallet"></i>
                         Permintaan Menabung
                     </h2>
                 </div>
-                <div class="user-avatar">
+                <div class="user-avatar mt-3 mt-md-0">
                     <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'User') }}&background=667eea&color=fff"
                         alt="User Avatar" width="50" height="50">
                 </div>
             </div>
-            <div class="balance-card mt-4 d-flex align-items-center gap-3">
+            
+            <div class="balance-card">
                 <div class="balance-icon">
-                    <i class="fas fa-coins text-success fs-3"></i>
+                    <i class="fas fa-coins"></i>
                 </div>
                 <div>
-                    <div class="text-muted">Saldo Anda</div>
-                    <div class="fs-4 fw-bold text-gradient">
+                    <div style="color: rgba(255,255,255,0.8);">Saldo Anda</div>
+                    <div class="balance-amount">
                         Rp{{ number_format($saldo, 0, ',', '.') }}
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card card-hover animate__animated" data-animation="animate__fadeInUp">
-            <div class="card-body">
-                <form action="{{ route('topup.store') }}" method="POST" autocomplete="off">
-                    @csrf
-                    <div class="mb-3">
-                        <label for="amount" class="form-label fw-semibold">Jumlah Setoran</label>
-                        <div class="input-group">
-                            <span class="input-group-text">Rp</span>
-                            <input type="number" min="1000" step="1000" class="form-control" id="amount"
-                                name="amount" placeholder="Minimal Rp1.000 (Ex: 1000)" required>
-                        </div>
-                        <small class="text-muted">Minimal setoran Rp1.000</small>
+        <div class="glass-card animate__animated animate__fadeInUp">
+            <form action="{{ route('topup.store') }}" method="POST" autocomplete="off">
+                @csrf
+                <div class="mb-4">
+                    <label for="amount" class="form-label">Jumlah Setoran</label>
+                    <div class="input-group">
+                        <span class="input-group-text">Rp</span>
+                        <input type="number" min="1000" step="1000" class="form-control" id="amount"
+                            name="amount" placeholder="Minimal Rp1.000 (Ex: 1000)" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="description" class="form-label fw-semibold">Keterangan (Opsional)</label>
-                        <input type="text" class="form-control" id="description" name="description"
-                            placeholder="Tambahkan keterangan jika perlu" maxlength="255">
-                    </div>
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-money-bill-wave me-1"></i> Ajukan Permintaan Menabung
-                        </button>
-                    </div>
-                </form>
-            </div>
+                    <small style="color: rgba(255,255,255,0.7);">Minimal setoran Rp1.000</small>
+                </div>
+                <div class="mb-4">
+                    <label for="description" class="form-label">Keterangan (Opsional)</label>
+                    <input type="text" class="form-control" id="description" name="description"
+                        placeholder="Tambahkan keterangan jika perlu" maxlength="255">
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="modern-btn">
+                        <i class="fas fa-money-bill-wave"></i> Ajukan Permintaan Menabung
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
-
-    <!-- Panggil Komponen Loading Modal -->
-    <x-loading-modal></x-loading-modal>
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Handle all button clicks (except dropdown toggles and already handled buttons)
-            document.querySelectorAll('button:not([data-bs-toggle]), input[type="submit"]').forEach(button => {
-                button.addEventListener('click', function(e) {
-                    // Skip if button is disabled or already handled by form submission
-                    if (this.disabled || this.closest('form')) return;
-
-                    // Skip if it's a dropdown toggle
-                    if (this.getAttribute('data-bs-toggle') === 'dropdown') return;
-
-                    showLoading('Memproses permintaan...');
-                });
-            });
-
-            // Special handling for logout button
-            const logoutForm = document.getElementById('logoutForm');
-            if (logoutForm) {
-                logoutForm.addEventListener('submit', function() {
-                    showLoading('Sedang keluar...');
-                });
-            }
-
-            // Handle navigation links (complementing the component's handler)
-            document.querySelectorAll('a.nav-link').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    // Skip if already handled by component's script
-                    if (this.target === '_blank' || this.href.includes('#') || e.ctrlKey || e
-                        .metaKey) return;
-
-                    // Special case for active navigation
-                    if (!this.classList.contains('active')) {
-                        e.preventDefault();
-                        showLoading('Memuat halaman...');
-                        setTimeout(() => window.location.href = this.href, 100);
-                    }
-                });
-            });
-
-            // Animation initialization (your existing code)
+            // Animasi saat elemen muncul di viewport
             const animateElements = document.querySelectorAll('.animate__animated');
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -581,6 +658,32 @@
             animateElements.forEach(element => {
                 observer.observe(element);
             });
+
+            // Tangkap semua form submission
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function() {
+                    // Tampilkan loading indicator
+                    const loadingModal = document.getElementById('loadingModal');
+                    if (loadingModal) {
+                        loadingModal.style.display = 'flex';
+                        document.getElementById('loadingText').textContent = 'Memproses permintaan...';
+                    }
+                });
+            });
+
+            // Tangkap event logout
+            const logoutForm = document.getElementById('logoutForm');
+            if (logoutForm) {
+                logoutForm.addEventListener('submit', function() {
+                    const loadingModal = document.getElementById('loadingModal');
+                    if (loadingModal) {
+                        loadingModal.style.display = 'flex';
+                        document.getElementById('loadingText').textContent = 'Sedang keluar...';
+                    }
+                });
+            }
+
+            // Tangkap navigasi link
             document.querySelectorAll('a[href^="/"]').forEach(link => {
                 link.addEventListener('click', function(e) {
                     // Abaikan jika target blank atau anchor link
@@ -590,7 +693,11 @@
                     if (e.ctrlKey || e.metaKey) return;
 
                     e.preventDefault();
-                    showLoading('Memuat halaman...');
+                    const loadingModal = document.getElementById('loadingModal');
+                    if (loadingModal) {
+                        loadingModal.style.display = 'flex';
+                        document.getElementById('loadingText').textContent = 'Memuat halaman...';
+                    }
 
                     // Redirect setelah sedikit delay untuk memastikan modal muncul
                     setTimeout(() => {
@@ -598,19 +705,15 @@
                     }, 100);
                 });
             });
-
-            // Tangkap semua form submission
-            document.querySelectorAll('form').forEach(form => {
-                form.addEventListener('submit', function() {
-                    showLoading('Memproses...');
-                });
-            });
-
-            // Tangkap event sebelum unload (navigasi atau refresh)
-            window.addEventListener('beforeunload', function() {
-                showLoading('Memuat...');
-            });
         });
+
+        function showLoading(message) {
+            const loadingModal = document.getElementById('loadingModal');
+            if (loadingModal) {
+                loadingModal.style.display = 'flex';
+                document.getElementById('loadingText').textContent = message || 'Memproses...';
+            }
+        }
     </script>
 </body>
 

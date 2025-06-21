@@ -57,9 +57,55 @@ class LoginController extends Controller
         $user = Auth::user();
         $saldo = Tabungan::where('user_id', $user->id)->first();
 
+        $totalMenitKerja = Absensi::where('user_id', $user->id)
+            ->whereIn('type', ['masuk', 'pulang'])
+            ->orderBy('created_at')
+            ->get()
+            ->groupBy(function ($record) {
+                return $record->created_at->format('Y-m-d');
+            })
+            ->map(function ($dailyRecords) {
+                $masuk = $dailyRecords->firstWhere('type', 'masuk');
+                $pulang = $dailyRecords->filter(function ($record) {
+                    return $record->type === 'pulang';
+                })->sortByDesc('created_at')->first();
+
+                if ($masuk && $pulang) {
+                    return $masuk->created_at->diffInMinutes($pulang->created_at);
+                }
+
+                return 0;
+            })
+            ->sum();
+
+        $hariAktifKerja = Absensi::where('user_id', $user->id)
+            ->where('type', 'masuk')
+            ->count();
+
+        // Konversi menit ke jam dengan koma (misal 510 menit = 8.5 jam)
+        $totalJamKerja = round($totalMenitKerja / 60, 2);
+
+       // Data untuk pie chart
+    $absensiData = Absensi::where('user_id', $user->id)
+        ->whereIn('type', ['masuk', 'izin', 'sakit'])
+        ->selectRaw('type, COUNT(*) as count')
+        ->groupBy('type')
+        ->get()
+        ->pluck('count', 'type')
+        ->toArray();
+
+    $data = [
+        'masuk' => $absensiData['masuk'] ?? 0,
+        'izin' => $absensiData['izin'] ?? 0,
+        'sakit' => $absensiData['sakit'] ?? 0,
+    ];
+
         return view('dashboard-guru', [
             'username' => $user->name,
-            'saldo' => $saldo->saldo ?? 0
+            'saldo' => $saldo->saldo ?? 0,
+            'totalJamKerja' => $totalJamKerja,
+            'hariAktifKerja' => $hariAktifKerja,
+            'absensiData' => $data,
         ]);
     }
 

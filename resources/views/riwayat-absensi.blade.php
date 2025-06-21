@@ -11,127 +11,36 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Animate.css -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-    <!-- Leaflet CSS for maps -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
+        /* Variables */
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
             --primary-light: #667eea;
             --primary-dark: #764ba2;
-            --secondary-color: #4a5568;
-            --accent-color: #48bb78;
-            --success-color: #10B981;
-            --warning-color: #F59E0B;
-            --danger-color: #EF4444;
-            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-bg: rgba(255, 255, 255, 0.25);
             --glass-border: rgba(255, 255, 255, 0.18);
         }
 
-        /* Loading Modal Styles */
-        #loadingModal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
+        /* General Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .loading-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(102, 126, 234, 0.2);
-            border-top-color: var(--primary-light);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        #loadingText {
-            font-weight: 600;
-            color: var(--secondary-color);
-        }
-
-        /* Notification Container */
-        .notification-container {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 1100;
-            width: 350px;
-            max-width: 100%;
-        }
-
-        .custom-alert {
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border: none;
-            overflow: hidden;
-            margin-bottom: 15px;
-            background-color: #fff !important;
-            /* Default solid background */
-        }
-
-        .custom-alert.alert-success {
-            background-color: #d1fae5 !important;
-            color: #065f46 !important;
-        }
-
-        .custom-alert.alert-danger,
-        .custom-alert.alert-error {
-            background-color: #fee2e2 !important;
-            color: #991b1b !important;
-        }
-
-        .custom-alert.alert-warning {
-            background-color: #fef9c3 !important;
-            color: #92400e !important;
-        }
-
-        .custom-alert.alert-info {
-            background-color: #e0f2fe !important;
-            color: #0369a1 !important;
-        }
-
-        .custom-alert .alert-icon {
-            font-size: 1.5rem;
-            margin-right: 12px;
-        }
-
-        .custom-alert .btn-close {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-        }
-
-        /* Body Styles */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-            background-attachment: fixed;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary-gradient);
             min-height: 100vh;
-            padding-top: 70px;
+            padding-top: 80px;
             position: relative;
+            overflow-x: hidden;
         }
 
+        /* Background Effects */
         body::before {
             content: '';
             position: fixed;
@@ -139,89 +48,144 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><radialGradient id="grad" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" /><stop offset="100%" style="stop-color:rgba(255,255,255,0);stop-opacity:1" /></radialGradient></defs><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="20" r="1" fill="rgba(255,255,255,0.08)"/><circle cx="40" cy="60" r="1.5" fill="rgba(255,255,255,0.06)"/><circle cx="90" cy="70" r="1" fill="rgba(255,255,255,0.04)"/><circle cx="10" cy="80" r="2" fill="rgba(255,255,255,0.05)"/></svg>') repeat;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
             pointer-events: none;
             z-index: -1;
         }
 
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .shape {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .shape:nth-child(1) {
+            top: 10%;
+            left: 20%;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            top: 70%;
+            right: 10%;
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(45deg);
+            animation-delay: 2s;
+        }
+
+        .shape:nth-child(3) {
+            bottom: 20%;
+            left: 10%;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 50%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+
         /* Navbar */
         .navbar {
-            background: var(--primary-gradient);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            padding: 0.8rem 2rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .btn-logout {
-            background: #e74c3c;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 20px;
-            font-weight: 600;
-            color: white;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-logout:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 1rem 2rem;
+            transition: all 0.3s ease;
         }
 
         .navbar-brand {
-            font-weight: 600;
-            color: white !important;
-            font-size: 1.3rem;
+            font-weight: 700;
+            color: white;
+            font-size: 1.4rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
             display: flex;
             align-items: center;
         }
 
         .navbar-brand i {
-            transition: transform 0.3s ease;
-        }
-
-        .navbar-brand:hover i {
-            transform: rotate(15deg);
+            margin-right: 10px;
+            font-size: 1.2rem;
         }
 
         .nav-link {
-            color: rgba(255, 255, 255, 0.9) !important;
-            padding: 0.5rem 1rem;
-            margin: 0 0.2rem;
-            border-radius: 8px;
-            transition: all 0.3s;
+            color: rgba(255, 255, 255, 0.9);
+            padding: 0.7rem 1.2rem;
+            margin: 0 0.3rem;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
             display: flex;
             align-items: center;
-            gap: 8px;
         }
 
         .nav-link i {
-            font-size: 0.9em;
+            margin-right: 8px;
             width: 20px;
             text-align: center;
+            font-size: 1rem;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
         }
 
         .nav-link:hover,
         .nav-link.active {
             background: rgba(255, 255, 255, 0.2);
-            color: white !important;
+            color: white;
             transform: translateY(-2px);
         }
 
         .navbar-toggler {
-            border-color: rgba(255, 255, 255, 0.2);
-            transition: all 0.3s;
+            border: none;
+            padding: 0.5rem;
+            color: white;
         }
 
-        .navbar-toggler:hover {
-            transform: scale(1.1);
-        }
-
-        .navbar-toggler-icon {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        .navbar-toggler:focus {
+            box-shadow: none;
         }
 
         /* Main Content */
@@ -229,485 +193,417 @@
             padding: 2rem;
             max-width: 1400px;
             margin: 0 auto;
+            position: relative;
         }
 
-        .location-card {
+        /* Card */
+        .glass-card {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
             border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            box-shadow:
-                0 20px 40px rgba(0, 0, 0, 0.1),
-                0 8px 32px rgba(102, 126, 234, 0.15),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            padding: 2.5rem;
-            margin-bottom: 2.5rem;
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
         }
 
-        .location-card::before {
+        .glass-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            height: 6px;
-            background: var(--primary-gradient);
-            border-radius: 24px 24px 0 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
         }
 
-        .location-card::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(102, 126, 234, 0.05) 0%, transparent 70%);
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            opacity: 0;
+        .glass-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
         }
 
-        .location-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow:
-                0 30px 60px rgba(0, 0, 0, 0.15),
-                0 12px 40px rgba(102, 126, 234, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-        }
-
-        .location-card:hover::after {
-            opacity: 1;
-        }
-
-        .location-title {
-            color: var(--primary-dark);
-            font-weight: 800;
+        .card-title {
+            color: white;
+            font-weight: 700;
             margin-bottom: 2rem;
+            font-size: 1.8rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
             display: flex;
             align-items: center;
-            font-size: 1.75rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            gap: 1rem;
         }
 
-        .location-title i {
-            margin-right: 15px;
-            animation: pulse 2s infinite;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 1.5em;
+        .card-title i {
+            background: var(--success-gradient);
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        @keyframes pulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.1);
-            }
-        }
-
-        /* Info Grid Styles */
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-bottom: 2rem;
-        }
-
-        .info-item {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.25);
+        /* Table */
+        .table-container {
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 16px;
-            padding: 20px;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-x: auto;
+        }
+
+        .modern-table {
+            width: 100%;
+            background: transparent;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+        .modern-table thead th {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            color: white;
+            font-weight: 600;
+            padding: 1rem 1.5rem;
+            border: none;
+            text-align: left;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .modern-table thead th:first-child {
+            border-radius: 12px 0 0 12px;
+        }
+
+        .modern-table thead th:last-child {
+            border-radius: 0 12px 12px 0;
+        }
+
+        .modern-table tbody tr {
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            border-radius: 12px;
+        }
+
+        .modern-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(4px);
+        }
+
+        .modern-table tbody td {
+            padding: 1.2rem 1.5rem;
+            border: none;
+            color: white;
+            vertical-align: middle;
+            position: relative;
+        }
+
+        .modern-table tbody td:first-child {
+            border-radius: 12px 0 0 12px;
+        }
+
+        .modern-table tbody td:last-child {
+            border-radius: 0 12px 12px 0;
+        }
+
+        /* Badges & Buttons */
+        .modern-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             position: relative;
             overflow: hidden;
-        }
-
-        .info-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--primary-gradient);
-            transition: width 0.3s ease;
-        }
-
-        .info-item:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
-        }
-
-        .info-item:hover::before {
-            width: 8px;
-        }
-
-        .info-label {
-            font-size: 0.85rem;
-            color: var(--secondary-color);
-            font-weight: 700;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .info-label i {
-            font-size: 0.9em;
-            opacity: 0.7;
-        }
-
-        .info-value {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #1a202c;
-            margin-bottom: 0;
-            line-height: 1.2;
-        }
-
-        /* Status Badges with improved design */
-        .status-badge {
-            padding: 10px 16px;
-            border-radius: 25px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            position: relative;
-            overflow: hidden;
-            text-transform: uppercase;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            justify-content: center;
         }
 
-        .status-badge::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .status-badge:hover::before {
-            left: 100%;
-        }
-
-        .status-badge i {
-            font-size: 0.9em;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-2px);
-            }
-        }
-
-        .status-active {
-            background: linear-gradient(135deg, var(--success-color), #059669);
-            color: white;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-        }
-
-        .status-inactive {
-            background: linear-gradient(135deg, var(--danger-color), #DC2626);
-            color: white;
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
-        }
-
-        .status-pending {
-            background: linear-gradient(135deg, var(--warning-color), #D97706);
-            color: white;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
-        }
-
-        /* Distance Display Enhanced */
-        .distance-display {
-            font-size: 1rem;
-            color: var(--secondary-color);
-            background: rgba(255, 255, 255, 0.8);
-            padding: 12px 18px;
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            font-weight: 600;
-        }
-
-        .distance-value {
-            font-weight: 800;
-            color: var(--primary-dark);
-            font-size: 1.1em;
-        }
-
-        /* Attendance Section Enhanced */
-        .attendance-section {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 20px;
-            padding: 25px;
-            margin-top: 20px;
-            box-shadow:
-                0 8px 32px rgba(0, 0, 0, 0.08),
-                inset 0 1px 0 rgba(255, 255, 255, 0.4);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .attendance-section:hover {
-            transform: translateY(-2px);
-            box-shadow:
-                0 12px 40px rgba(0, 0, 0, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.5);
-        }
-
-        .attendance-btn {
+        .badge-primary {
             background: var(--primary-gradient);
             color: white;
+        }
+
+        .badge-success {
+            background: var(--success-gradient);
+            color: white;
+        }
+
+        .badge-danger {
+            background: var(--secondary-gradient);
+            color: white;
+        }
+
+        .badge-warning {
+            background: var(--warning-gradient);
+            color: white;
+        }
+
+        .badge-info {
+            background: linear-gradient(135deg, #00c6fb 0%, #005bea 100%);
+            color: white;
+        }
+
+        .badge-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .modern-btn {
+            background: var(--primary-gradient);
             border: none;
-            border-radius: 16px;
-            padding: 16px 32px;
-            font-weight: 700;
-            font-size: 1rem;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow:
-                0 6px 20px rgba(102, 126, 234, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 0.8rem 1.5rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .attendance-btn::before {
+        .modern-btn i {
+            margin-right: 8px;
+            font-size: 0.9rem;
+        }
+
+        .modern-btn::before {
             content: '';
             position: absolute;
             top: 0;
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s ease;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
         }
 
-        .attendance-btn:hover::before {
+        .modern-btn:hover::before {
             left: 100%;
         }
 
-        .attendance-btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow:
-                0 10px 30px rgba(102, 126, 234, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        .modern-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
 
-        .attendance-btn:active {
-            transform: translateY(-1px) scale(1.02);
+        .btn-logout {
+            background: var(--secondary-gradient);
+            border: none;
+            border-radius: 12px;
+            padding: 0.8rem 1.5rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
         }
 
-        .attendance-btn:disabled {
-            background: linear-gradient(135deg, #e2e8f0, #cbd5e0);
-            color: #a0aec0;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        .btn-logout i {
+            margin-right: 8px;
         }
 
-        .attendance-btn:disabled::before {
-            display: none;
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
 
-        .attendance-btn i {
-            font-size: 1.1em;
-            animation: fingerprint 2s infinite;
-        }
-
-        @keyframes fingerprint {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.1);
-            }
-        }
-
-        /* Enhanced Time Info Row */
-        .row.mb-3 .info-item {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
-            border-left: 4px solid var(--primary-gradient);
-        }
-
-        /* Enhanced Address Section */
-        .mb-3:last-of-type .info-item {
-            background: linear-gradient(135deg, rgba(72, 187, 120, 0.05), rgba(56, 178, 172, 0.05));
-            border-left: 4px solid var(--accent-color);
-            padding: 20px;
-            font-size: 1rem;
-            line-height: 1.6;
-        }
-
-        /* Empty State Enhancement */
-        .location-card.text-center {
+        /* Alerts */
+        .modern-alert {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
-            border: 2px dashed rgba(102, 126, 234, 0.3);
-            padding: 4rem 2rem;
-        }
-
-        .location-card.text-center i {
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            color: white;
             margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
         }
 
-        .location-card.text-center h3 {
-            color: var(--primary-dark);
-            font-weight: 700;
-            margin-bottom: 1rem;
+        .modern-alert i {
+            margin-right: 12px;
+            font-size: 1.2rem;
         }
 
-        /* Responsive Improvements */
+        .modern-alert.alert-success {
+            border-left: 4px solid #4CAF50;
+        }
+
+        .modern-alert.alert-danger {
+            border-left: 4px solid #f44336;
+        }
+
+        .modern-alert.alert-warning {
+            border-left: 4px solid #FF9800;
+        }
+
+        .modern-alert.alert-info {
+            border-left: 4px solid #2196F3;
+        }
+
+        /* Pagination */
+        .pagination {
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .page-link {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            margin: 0 0.2rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .page-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .page-item.active .page-link {
+            background: var(--primary-gradient);
+            border-color: transparent;
+        }
+
+        /* Responsive Design */
         @media (max-width: 992px) {
-            .info-grid {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 15px;
+            .card-title {
+                font-size: 1.6rem;
+            }
+
+            .modern-table thead th,
+            .modern-table tbody td {
+                padding: 1rem;
             }
         }
 
         @media (max-width: 768px) {
-            .navbar-collapse {
-                padding: 1rem;
-                background: var(--primary-gradient);
-                border-radius: 0 0 15px 15px;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            }
-
-            .nav-item {
-                margin-bottom: 0.5rem;
-            }
-
             .main-container {
                 padding: 1rem;
             }
 
-            .location-card {
-                padding: 2rem;
-                margin-bottom: 2rem;
+            .glass-card {
+                padding: 1.5rem;
             }
 
-            .location-title {
-                font-size: 1.5rem;
-            }
-
-            .info-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 12px;
-            }
-
-            .attendance-section {
+            .card-title {
+                font-size: 1.4rem;
                 flex-direction: column;
-                align-items: stretch;
-                gap: 15px;
                 text-align: center;
+                gap: 0.5rem;
             }
 
-            .attendance-btn {
-                justify-content: center;
-                padding: 14px 24px;
+            .table-container {
+                padding: 0.5rem;
             }
 
-            .notification-container {
-                top: 70px;
-                right: 10px;
-                width: 95%;
+            .modern-table {
+                font-size: 0.8rem;
+            }
+
+            .modern-table thead th,
+            .modern-table tbody td {
+                padding: 0.8rem;
+            }
+
+            .navbar-collapse {
+                background: var(--glass-bg);
+                backdrop-filter: blur(20px);
+                border-radius: 12px;
+                margin-top: 1rem;
+                padding: 1rem;
             }
         }
 
         @media (max-width: 576px) {
-            .info-grid {
-                grid-template-columns: 1fr;
+            .card-title i {
+                padding: 8px;
+                font-size: 1rem;
             }
 
-            .location-title {
-                font-size: 1.3rem;
+            .modern-badge {
+                font-size: 0.7rem;
+                padding: 0.4rem 0.8rem;
             }
 
-            .location-card {
-                padding: 1.5rem;
-            }
-        }
-
-        /* Additional subtle animations */
-        .location-card {
-            animation: fadeInUp 0.6s ease-out;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
+            .modern-table thead th,
+            .modern-table tbody td {
+                padding: 0.6rem;
+                font-size: 0.75rem;
             }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            .modern-table thead th i,
+            .modern-table tbody td i {
+                display: none;
+            }
+
+            .navbar {
+                padding: 0.8rem 1rem;
             }
         }
 
-        /* Smooth scrolling */
-        html {
-            scroll-behavior: smooth;
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
         }
     </style>
 </head>
 
 <body>
-    <!-- Navbar-guru -->
+    <!-- Floating Background Shapes -->
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="/dashboard-guru">
-                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                <i class="fas fa-tachometer-alt"></i> Dashboard
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+                <i class="fas fa-bars"></i>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
@@ -739,83 +635,95 @@
         </div>
     </nav>
 
-    <div class="main-container">
+    <!-- Main Content -->
+    <div class="main-container animate__animated animate__fadeIn">
+        <!-- Success Alert -->
         @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show">
-                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <div class="modern-alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i>
+                <div>{{ session('success') }}</div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"
+                    aria-label="Close"></button>
             </div>
         @endif
 
+        <!-- Error Alert -->
         @if (session('error'))
-            <div class="alert alert-danger alert-dismissible fade show">
-                <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <div class="modern-alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i>
+                <div>{{ session('error') }}</div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"
+                    aria-label="Close"></button>
             </div>
         @endif
 
-        {{-- main content --}}
-        <div class="location-card">
-            <div class="location-title">
-                <i class="fas fa-clipboard-list"></i> Riwayat Absensi
-            </div>
+        <!-- Main Card -->
+        <div class="glass-card animate__animated animate__fadeInUp">
+            <h4 class="card-title">
+                <i class="fas fa-clipboard-list"></i>
+                Riwayat Absensi
+            </h4>
 
-            <div class="d-flex justify-content-end mb-3">
-                <form method="GET" action="{{ route('riwayat.absen.now') }}">
+            <div class="d-flex justify-content-end gap-2 mb-4 flex-wrap">
+                <form method="GET" action="{{ route('riwayat.absen.now') }}" class="w-100 w-md-auto">
                     <input type="hidden" name="filter" value="today">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-filter me-1"></i> Sort Hari Ini
+                    <button type="submit" class="modern-btn w-100">
+                        <i class="fas fa-filter"></i> Hari Ini
                     </button>
                 </form>
-            </div>
 
-            <div class="d-flex justify-content-end mb-3">
-                <form method="GET" action="{{ route('riwayat.absen.sort') }}">
-                    <div class="input-group">
-                        <select name="year" class="form-select">
-                            @foreach (range(date('Y'), date('Y') + 10) as $year)
-                                <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>
-                                    {{ $year }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <select name="month" class="form-select">
-                            @foreach (range(1, 12) as $month)
-                                <option value="{{ $month }}" {{ request('month') == $month ? 'selected' : '' }}>
-                                    {{ DateTime::createFromFormat('!m', $month)->format('F') }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-filter me-1"></i> Sort Tahun & Bulan
-                        </button>
-                        <a href="{{ route('riwayat.absen.export', request()->query()) }}" class="btn btn-success">
-                            <i class="fas fa-file-excel me-1"></i> Export Excel
-                        </a>
-                    </div>
+                <form method="GET" action="{{ route('riwayat.absen.sort') }}" class="input-group w-100"
+                    style="max-width: 500px;">
+                    <select name="year" class="form-select">
+                        @foreach (range(date('Y'), date('Y') + 10) as $year)
+                            <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>
+                                {{ $year }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <select name="month" class="form-select">
+                        @foreach (range(1, 12) as $month)
+                            <option value="{{ $month }}" {{ request('month') == $month ? 'selected' : '' }}>
+                                {{ DateTime::createFromFormat('!m', $month)->format('F') }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <button type="submit" class="modern-btn">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                    <a href="{{ route('riwayat.absen.export', request()->query()) }}" class="modern-btn"
+                        style="background: var(--success-gradient);">
+                        <i class="fas fa-file-excel"></i> Export
+                    </a>
                 </form>
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
+            <div class="table-container animate__animated animate__fadeInRight">
+                <table class="modern-table">
+                    <thead>
                         <tr>
-                            <th>#</th>
-                            <th>Tanggal</th>
-                            <th>Tipe</th>
-                            <th>Status</th>
-                            <th>Lokasi</th>
-                            <th>Koordinat</th>
-                            <th>Detail</th>
+                            <th><i class="fas fa-hashtag me-2 d-none d-md-inline"></i>No</th>
+                            <th><i class="fas fa-calendar me-2 d-none d-md-inline"></i>Tanggal</th>
+                            <th><i class="fas fa-tag me-2 d-none d-md-inline"></i>Tipe</th>
+                            <th><i class="fas fa-info-circle me-2 d-none d-md-inline"></i>Status</th>
+                            <th><i class="fas fa-map-marker-alt me-2 d-none d-md-inline"></i>Lokasi</th>
+                            <th><i class="fas fa-map-pin me-2 d-none d-md-inline"></i>Koordinat</th>
+                            <th><i class="fas fa-ellipsis-h me-2 d-none d-md-inline"></i>Detail</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($absensi as $absen)
-                            <tr>
-                                <td>{{ $loop->iteration + ($absensi->currentPage() - 1) * $absensi->perPage() }}</td>
+                            <tr class="animate__animated animate__fadeInUp"
+                                style="animation-delay: {{ $loop->index * 0.05 }}s">
                                 <td>
-                                    {{ $absen->created_at->format('d-m-Y') }}<br>
-                                    <small class="text-muted">{{ $absen->created_at->format('H:i:s') }}</small>
+                                    <span
+                                        class="badge bg-secondary">{{ $loop->iteration + ($absensi->currentPage() - 1) * $absensi->perPage() }}</span>
+                                </td>
+                                <td>
+                                    <div>
+                                        <div style="font-weight: 600;">{{ $absen->created_at->format('d/m/Y') }}</div>
+                                        <small style="opacity: 0.7;">{{ $absen->created_at->format('H:i:s') }}</small>
+                                    </div>
                                 </td>
                                 <td>
                                     @php
@@ -826,22 +734,30 @@
                                             'sakit' => ['icon' => 'procedures', 'color' => 'danger'],
                                         ][$absen->type] ?? ['icon' => 'question-circle', 'color' => 'secondary'];
                                     @endphp
-                                    <span class="badge bg-{{ $typeConfig['color'] }}">
+                                    <span class="modern-badge badge-{{ $typeConfig['color'] }}">
                                         <i class="fas fa-{{ $typeConfig['icon'] }} me-1"></i>
-                                        {{ ucfirst($absen->type) }}
+                                        <span class="d-none d-md-inline">{{ ucfirst($absen->type) }}</span>
+                                        <span
+                                            class="d-inline d-md-none">{{ substr(ucfirst($absen->type), 0, 1) }}</span>
                                     </span>
                                 </td>
                                 <td>
-                                    <div class="d-flex flex-column gap-1">
+                                    <div class="d-flex flex-column gap-2">
                                         <span
-                                            class="badge {{ $absen->status_waktu === 'tepat waktu' ? 'bg-success' : 'bg-danger' }}">
+                                            class="modern-badge {{ $absen->status_waktu === 'tepat waktu' ? 'badge-success' : 'badge-danger' }}">
                                             <i class="fas fa-clock me-1"></i>
-                                            {{ ucfirst($absen->status_waktu) }}
+                                            <span
+                                                class="d-none d-md-inline">{{ ucfirst($absen->status_waktu) }}</span>
+                                            <span
+                                                class="d-inline d-md-none">{{ $absen->status_waktu === 'tepat waktu' ? 'Tepat' : 'Terlambat' }}</span>
                                         </span>
                                         <span
-                                            class="badge {{ $absen->status_lokasi === 'dalam radius' ? 'bg-success' : 'bg-danger' }}">
+                                            class="modern-badge {{ $absen->status_lokasi === 'dalam radius' ? 'badge-success' : 'badge-danger' }}">
                                             <i class="fas fa-map-marker-alt me-1"></i>
-                                            {{ ucfirst($absen->status_lokasi) }}
+                                            <span
+                                                class="d-none d-md-inline">{{ ucfirst($absen->status_lokasi) }}</span>
+                                            <span
+                                                class="d-inline d-md-none">{{ $absen->status_lokasi === 'dalam radius' ? 'Dalam' : 'Luar' }}</span>
                                         </span>
                                     </div>
                                 </td>
@@ -849,26 +765,33 @@
                                     @if ($absen->lokasi)
                                         <div class="d-flex flex-column">
                                             <strong>{{ $absen->lokasi->name }}</strong>
-                                            <small class="text-muted">{{ $absen->lokasi->alamat }}</small>
-                                            <small>
-                                                <span class="badge bg-secondary">{{ $absen->lokasi->type }}</span>
-                                                <span class="badge bg-light text-dark">{{ $absen->lokasi->radius }}
-                                                    m</span>
-                                            </small>
+                                            <small style="opacity: 0.7;"
+                                                class="d-none d-md-inline">{{ $absen->lokasi->alamat }}</small>
+                                            <div class="mt-1">
+                                                <span
+                                                    class="modern-badge badge-secondary d-none d-md-inline-block">{{ $absen->lokasi->type }}</span>
+                                                <span
+                                                    class="modern-badge badge-secondary d-none d-md-inline-block">{{ $absen->lokasi->radius }} m</span>
+
+                                            </div>
                                         </div>
                                     @else
-                                        -
+                                        <span style="opacity: 0.5;">-</span>
                                     @endif
                                 </td>
                                 <td>
                                     <div class="d-flex flex-column">
-                                        <small>
+                                        <small class="d-none d-md-block">
                                             <strong>Absen:</strong>
                                             {{ number_format($absen->latitude, 6) }},
                                             {{ number_format($absen->longitude, 6) }}
                                         </small>
+                                        <small class="d-block d-md-none">
+                                            {{ number_format($absen->latitude, 2) }},
+                                            {{ number_format($absen->longitude, 2) }}
+                                        </small>
                                         @if ($absen->lokasi)
-                                            <small>
+                                            <small class="d-none d-md-block">
                                                 <strong>Acuan:</strong>
                                                 {{ number_format($absen->lokasi->latitude, 6) }},
                                                 {{ number_format($absen->lokasi->longitude, 6) }}
@@ -877,33 +800,35 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse"
-                                        data-bs-target="#detail-{{ $absen->id }}">
+                                    <button class="modern-btn" style="padding: 0.5rem; min-width: 40px;"
+                                        data-bs-toggle="collapse" data-bs-target="#detail-{{ $absen->id }}">
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                 </td>
                             </tr>
-                            <tr class="collapse bg-light" id="detail-{{ $absen->id }}">
+                            <tr class="collapse collapse-row" id="detail-{{ $absen->id }}">
                                 <td colspan="7">
                                     <div class="p-3">
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <h6><i class="fas fa-info-circle me-2"></i>Detail Absensi</h6>
-                                                <ul class="list-unstyled">
-                                                    <li><strong>Durasi:</strong> {{ $absen->durasi ?? '-' }}</li>
+                                                <h6 class="text-white mb-3"><i
+                                                        class="fas fa-info-circle me-2"></i>Detail Absensi</h6>
+                                                <ul class="list-unstyled text-white">
+                                                    <li class="mb-2"><strong>Durasi:</strong>
+                                                        {{ $absen->durasi ?? '-' }}</li>
                                                     <li><strong>Catatan:</strong> {{ $absen->notes ?? '-' }}</li>
                                                 </ul>
                                             </div>
                                             <div class="col-md-6">
                                                 @if ($absen->lokasi)
-                                                    <h6><i class="fas fa-map-marked-alt me-2"></i>Jam Kerja Lokasi</h6>
-                                                    <ul class="list-unstyled">
-                                                        <li><strong>Jam Masuk:</strong>
-                                                            {{ $absen->lokasi->jam_masuk ?? '-' }}
-                                                        </li>
+                                                    <h6 class="text-white mb-3"><i
+                                                            class="fas fa-map-marked-alt me-2"></i>Jam Kerja Lokasi
+                                                    </h6>
+                                                    <ul class="list-unstyled text-white">
+                                                        <li class="mb-2"><strong>Jam Masuk:</strong>
+                                                            {{ $absen->lokasi->jam_masuk ?? '-' }}</li>
                                                         <li><strong>Jam Pulang:</strong>
-                                                            {{ $absen->lokasi->jam_sampai ?? '-' }}
-                                                        </li>
+                                                            {{ $absen->lokasi->jam_sampai ?? '-' }}</li>
                                                     </ul>
                                                 @endif
                                             </div>
@@ -913,7 +838,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-4">
+                                <td colspan="7" class="text-center py-4" style="opacity: 0.7;">
                                     <i class="fas fa-calendar-times fa-2x mb-2"></i><br>
                                     Belum ada riwayat absensi.
                                 </td>
@@ -923,16 +848,45 @@
                 </table>
 
                 <!-- Pagination -->
-                <div class="d-flex justify-content-center mt-3">
+                <div class="d-flex justify-content-center mt-4">
                     {{ $absensi->links() }}
                 </div>
             </div>
         </div>
+    </div>
 
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous">
-        </script>
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Animasi saat elemen muncul di viewport
+        document.addEventListener('DOMContentLoaded', function() {
+            const animateElements = document.querySelectorAll('.animate__animated');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const animation = entry.target.getAttribute('data-animation');
+                        entry.target.classList.add(animation);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            animateElements.forEach(element => {
+                observer.observe(element);
+            });
+
+            // Tangkap semua form submission
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function() {
+                    // Anda bisa menambahkan loading indicator di sini jika diperlukan
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>
