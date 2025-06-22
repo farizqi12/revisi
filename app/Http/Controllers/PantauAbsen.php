@@ -87,66 +87,44 @@ class PantauAbsen extends Controller
     public function export()
     {
         try {
-            // Mendapatkan parameter dari request
+
             $today = now()->toDateString();
             $year = request('year');
             $month = request('month');
             $filter = request('filter');
 
-            // Membuat query dasar
-            $query = Absensi::with([
-                'user' => function ($query) {
-                    $query->select('id', 'name', 'username', 'role');
-                },
-                'lokasi' => function ($query) {
-                    $query->select('id', 'name', 'type', 'alamat', 'radius', 'jam_masuk', 'jam_sampai', 'latitude', 'longitude');
-                }
-            ]);
+            $query = Absensi::with(['user', 'lokasi']);
 
-            // Memeriksa apakah ada parameter filter yang aktif
-            $hasActiveFilter = request()->has('filter') || request()->has('year') || request()->has('month');
-
-            // Menerapkan filter hanya jika ada parameter yang aktif
-            if ($hasActiveFilter) {
-                if ($filter === 'today' || request()->fullUrlIs(route('pantau-absen.now'))) {
-                    // Filter untuk tampilan hari ini
-                    $query->whereDate('created_at', $today)
-                        ->orderBy('created_at', 'desc');
-                } elseif ($year && $month || request()->fullUrlIs(route('pantau-absen.sort'))) {
-                    // Filter untuk tampilan bulan/tahun tertentu
-                    $query->whereYear('created_at', $year)
-                        ->whereMonth('created_at', $month)
-                        ->orderBy('created_at', 'desc');
+            if (request()->has('filter') || $year || $month) {
+                if ($filter === 'today') {
+                    $query->whereDate('created_at', $today)->orderBy('created_at', 'desc');
+                } elseif ($year && $month) {
+                    $query->whereYear('created_at', $year)->whereMonth('created_at', $month)->orderBy('created_at', 'desc');
                 }
             } else {
-                // Jika tidak ada filter, tampilkan semua data
                 $query->orderBy('created_at', 'desc');
             }
 
-            // Mengambil semua data tanpa pagination
             $absensi = $query->get();
-
-            // Membuat spreadsheet
             $spreadsheet = new Spreadsheet();
             $sheet = $spreadsheet->getActiveSheet();
 
-            // Header tabel (sesuai dengan kolom di view)
-            $headers = [
-                'No',
-                'Nama',
-                'Tanggal',
-                'Tipe',
-                'Status Waktu',
-                'Status Lokasi',
-                'Nama Lokasi',
-                'Alamat Lokasi',
-                'Tipe Lokasi',
-                'Durasi',
-                'Catatan',
-            ];
-            $sheet->fromArray($headers, null, 'A1');
+            // ===================== BAGIAN ATAS (MERGE JUDUL) =====================
+            $sheet->mergeCells('A1:K1')->setCellValue('A1', 'REKAP PRESENSI TENAGA PENDIDIK DAN TENAGA KEPENDIDIKAN');
+            $sheet->mergeCells('A2:K2')->setCellValue('A2', 'SDIT ARRAHMAH TUKUM TEKUNG LUMAJANG');
+            // Gunakan filter tahun dan bulan jika tersedia, jika tidak gunakan bulan dan tahun saat ini
+            $bulan = $month ? str_pad($month, 2, '0', STR_PAD_LEFT) : now()->format('m');
+            $tahun = $year ?? now()->format('Y');
+            // Konversi angka bulan ke nama bulan
+            $namaBulan = \Carbon\Carbon::createFromFormat('m', $bulan)->translatedFormat('F');
+            $sheet->mergeCells('A3:K3')->setCellValue('A3', 'BULAN : ' . strtoupper($namaBulan . ' ' . $tahun));
 
-            $row = 2;
+            // ===================== HEADER =====================
+            $headers = ['No','Nama', 'Tanggal', 'Tipe', 'Status Waktu', 'Status Lokasi', 'Nama Lokasi', 'Alamat Lokasi', 'Tipe Lokasi', 'Durasi', 'Catatan'];
+            $sheet->fromArray($headers, null, 'A7');
+
+            // ===================== ISI TABEL =====================
+            $row = 8;
             foreach ($absensi as $index => $absen) {
                 $sheet->setCellValue("A{$row}", $index + 1);
                 $sheet->setCellValue("B{$row}", $absen->user->name ?? '-');
@@ -162,24 +140,32 @@ class PantauAbsen extends Controller
                 $row++;
             }
 
-            $lastCol = 'K';
+            // ===================== STYLING =====================
             $lastRow = $row - 1;
-            $sheet->getStyle("A1:{$lastCol}{$lastRow}")->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-            $sheet->getStyle("A1:{$lastCol}1")->getFont()->setBold(true);
-            $sheet->getStyle("A1:{$lastCol}{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-            $sheet->getStyle("A1:{$lastCol}1")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('D9D9D9');
+            $lastCol = 'K';
+
+            $sheet->getStyle("A7:{$lastCol}{$lastRow}")
+                ->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+
+            $sheet->getStyle("A7:{$lastCol}7")
+                ->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('D9D9D9');
+            $sheet->getStyle("A7:{$lastCol}7")->getFont()->setBold(true);
+            $sheet->getStyle("A7:{$lastCol}{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+
+            $sheet->getStyle('A1:K3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('A1:K3')->getFont()->setBold(true);
 
             foreach (range('A', $lastCol) as $col) {
                 $sheet->getColumnDimension($col)->setAutoSize(true);
             }
 
-            $filename = 'Data_Absensi_' . now()->format('Ymd_His') . '.xlsx';
+            // ===================== EXPORT =====================
+            $filename = 'Rekap_Absensi_' . now()->format('Ymd_His') . '.xlsx';
             $writer = new Xlsx($spreadsheet);
 
             header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             header("Content-Disposition: attachment; filename=\"{$filename}\"");
             header('Cache-Control: max-age=0');
-
             $writer->save('php://output');
             exit;
         } catch (\Exception $e) {
