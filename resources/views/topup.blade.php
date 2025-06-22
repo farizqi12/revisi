@@ -541,7 +541,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="/riwayat-topup">
+                        <a class="nav-link" href="/riwayat-topup">
                             <i class="fas fa-history"></i> Riwayat Transaksi
                         </a>
                     </li>

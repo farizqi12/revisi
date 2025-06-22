@@ -26,12 +26,6 @@
             --shadow-hover: 0 15px 35px rgba(31, 38, 135, 0.25);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -57,6 +51,11 @@
         }
 
         /* Glassmorphism Navbar */
+            * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         .navbar {
             background: var(--glass-bg);
             backdrop-filter: blur(15px);
@@ -842,43 +841,46 @@
                     <div class="stat-label">Hari Aktif Kerja</div>
                 </div>
             </div>
-            <section class="chart-section">
-                <div class="chart-container">
-                    <div class="chart-title">Statistik Absensi</div>
-                    <canvas id="absensiChart" width="400" height="350"></canvas>
-                </div>
+        </div>
+        <div class="d-flex justify-content-center">
+            <div class="glass-card" style="max-width: 900px; width: 100%;">
+                <section class="chart-section">
+                    <div class="chart-container">
+                        <div class="chart-title">Statistik Absensi</div>
+                        <canvas id="absensiChart" width="400" height="350"></canvas>
+                    </div>
 
-                <div class="chart-legend">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #36A2EB;"></div>
-                        <div class="legend-content">
-                            <div class="legend-label">Masuk</div>
-                            <div class="legend-value">
-                                {{ round(($absensiData['masuk'] / max(1, $absensiData['masuk'] + $absensiData['izin'] + $absensiData['sakit'])) * 100) }}%
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #36A2EB;"></div>
+                            <div class="legend-content">
+                                <div class="legend-label">Masuk</div>
+                                <div class="legend-value">
+                                    {{ round(($absensiData['masuk'] / max(1, $absensiData['masuk'] + $absensiData['izin'] + $absensiData['sakit'])) * 100) }}%
+                                </div>
+                            </div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #FFCE56;"></div>
+                            <div class="legend-content">
+                                <div class="legend-label">Izin</div>
+                                <div class="legend-value">
+                                    {{ round(($absensiData['izin'] / max(1, $absensiData['masuk'] + $absensiData['izin'] + $absensiData['sakit'])) * 100) }}%
+                                </div>
+                            </div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #FF6384;"></div>
+                            <div class="legend-content">
+                                <div class="legend-label">Sakit</div>
+                                <div class="legend-value">
+                                    {{ round(($absensiData['sakit'] / max(1, $absensiData['masuk'] + $absensiData['izin'] + $absensiData['sakit'])) * 100) }}%
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #FFCE56;"></div>
-                        <div class="legend-content">
-                            <div class="legend-label">Izin</div>
-                            <div class="legend-value">
-                                {{ round(($absensiData['izin'] / max(1, $absensiData['masuk'] + $absensiData['izin'] + $absensiData['sakit'])) * 100) }}%
-                            </div>
-                        </div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #FF6384;"></div>
-                        <div class="legend-content">
-                            <div class="legend-label">Sakit</div>
-                            <div class="legend-value">
-                                {{ round(($absensiData['sakit'] / max(1, $absensiData['masuk'] + $absensiData['izin'] + $absensiData['sakit'])) * 100) }}%
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
+                </section>
+            </div>
         </div>
     </div>
 
@@ -928,9 +930,6 @@
                     this.style.transform = 'translateY(0) scale(1)';
                 });
             });
-
-            // Loading states for navigation
-            
 
             // Add smooth reveal animation on scroll
             const observerOptions = {

@@ -618,7 +618,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="/riwayat-absensi">
+                        <a class="nav-link active text-white" href="/riwayat-absensi">
                             <i class="fas fa-clipboard-list"></i> Riwayat Absensi
                         </a>
                     </li>
