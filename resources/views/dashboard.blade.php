@@ -103,6 +103,51 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
         }
+        
+        /* Stat Cards */
+        .stat-card {
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .stat-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        .stat-card h5 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card .h3 {
+            font-weight: 700;
+        }
+        
+        /* Chart Card */
+        .chart-card {
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: none;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        .chart-card .card-title {
+            color: var(--primary-dark);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -118,6 +163,10 @@
 
             .main-container {
                 padding: 1rem;
+            }
+            
+            .stat-card {
+                margin-bottom: 1rem;
             }
         }
     </style>
@@ -138,7 +187,7 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="/user-manage">
-                        <i class="fas fa-user"></i> Kelola Pengguna </a>
+                            <i class="fas fa-user"></i> Kelola Pengguna </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/kelola-transaksi">
@@ -150,7 +199,7 @@
                             <i class="fas fa-calendar-check me-1"></i> Pantau Absen
                         </a>
                     </li>
-                     <li class="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link" href="/atur-absen">
                             <i class="fa-solid fa-location-crosshairs"></i> Atur Lokasi Absen
                         </a>
@@ -170,24 +219,49 @@
 
     <!-- Main Content -->
     <div class="main-container animate__animated animate__fadeIn">
+        <!-- Welcome Card -->
         <div class="welcome-card">
             <h2 class="welcome-title">
                 <i class="fas fa-hand-wave me-2"></i>Selamat Datang, {{ $username }}
             </h2>
             <p class="mb-0">Anda telah berhasil login ke sistem.</p>
         </div>
-
-        <!-- Debug cookie (bisa dihapus di production) -->
-        @if (env('APP_DEBUG'))
-            <div class="card mb-4">
-                <div class="card-header bg-light">
-                    Debug Information
-                </div>
-                <div class="card-body">
-                    <pre>{{ json_encode(Cookie::get(), JSON_PRETTY_PRINT) }}</pre>
+        
+        <!-- Stats Row -->
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3 mb-md-0">
+                <div class="card stat-card bg-success text-white">
+                    <div class="card-body">
+                        <h5><i class="fas fa-check-circle me-2"></i>Masuk Hari Ini</h5>
+                        <p class="h3">{{ $jumlahMasuk }} orang</p>
+                    </div>
                 </div>
             </div>
-        @endif
+            <div class="col-md-4 mb-3 mb-md-0">
+                <div class="card stat-card bg-warning text-dark">
+                    <div class="card-body">
+                        <h5><i class="fas fa-file-alt me-2"></i>Izin Lainnya</h5>
+                        <p class="h3">{{ $jumlahIzin }} orang</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card bg-danger text-white">
+                    <div class="card-body">
+                        <h5><i class="fas fa-procedures me-2"></i>Izin Sakit</h5>
+                        <p class="h3">{{ $jumlahSakit }} orang</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Card -->
+        <div class="card chart-card">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-chart-line me-2"></i>Grafik Pergerakan Tabungan</h5>
+                <canvas id="transaksiChart" class="w-100" style="height: 400px;"></canvas>
+            </div>
+        </div>
     </div>
 
     <!-- Loading Modal -->
@@ -209,6 +283,7 @@
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Animasi saat elemen muncul di viewport
         document.addEventListener('DOMContentLoaded', function() {
@@ -229,7 +304,7 @@
             animateElements.forEach(element => {
                 observer.observe(element);
             });
-             document.querySelectorAll('a[href^="/"]').forEach(link => {
+            document.querySelectorAll('a[href^="/"]').forEach(link => {
                 link.addEventListener('click', function(e) {
                     // Abaikan jika target blank atau anchor link
                     if (this.target === '_blank' || this.href.includes('#')) return;
@@ -258,6 +333,40 @@
             window.addEventListener('beforeunload', function() {
                 showLoading('Memuat...');
             });
+        });
+
+        const data = @json($chartData);
+
+        const labels = data.map(d => `${d.bulan}-${d.tahun}`);
+        const setoran = data.map(d => d.total_setoran);
+        const penarikan = data.map(d => d.total_penarikan);
+
+        const ctx = document.getElementById('transaksiChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                        label: 'Setoran',
+                        data: setoran,
+                        backgroundColor: 'rgba(0, 128, 0, 0.6)',
+                    },
+                    {
+                        label: 'Penarikan',
+                        data: penarikan,
+                        backgroundColor: 'rgba(255, 0, 0, 0.6)',
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Grafik Pergerakan Tabungan'
+                    }
+                }
+            }
         });
     </script>
 </body>

@@ -9,6 +9,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 
 class LoginController extends Controller
@@ -49,7 +51,30 @@ class LoginController extends Controller
     {
         $user = Auth::user(); // Gantikan cookie manual
 
-        return view('dashboard', ['username' => $user->name]);
+        $data = DB::table('transaksis')
+            ->selectRaw('MONTH(created_at) as bulan, YEAR(created_at) as tahun,
+            SUM(CASE WHEN jenis = "setoran" THEN jumlah ELSE 0 END) as total_setoran,
+            SUM(CASE WHEN jenis = "penarikan" THEN jumlah ELSE 0 END) as total_penarikan')
+            ->where('status', 'diterima') // hanya data yang sah
+            ->groupBy(DB::raw('YEAR(created_at), MONTH(created_at)'))
+            ->orderByRaw('tahun, bulan')
+            ->get();
+
+        $today = Carbon::today();
+
+        $jumlah = DB::table('absensis')
+            ->select('type', DB::raw('COUNT(DISTINCT user_id) as total'))
+            ->whereDate('created_at', $today)
+            ->whereIn('type', ['masuk', 'izin', 'sakit'])
+            ->groupBy('type')
+            ->pluck('total', 'type'); // menghasilkan array key=>value
+
+        // Nilai default jika tidak ditemukan
+        $jumlahMasuk = $jumlah['masuk'] ?? 0;
+        $jumlahIzin = $jumlah['izin'] ?? 0;
+        $jumlahSakit = $jumlah['sakit'] ?? 0;
+
+        return view('dashboard', ['username' => $user->name, 'chartData' => $data, 'jumlahMasuk' => $jumlahMasuk, 'jumlahIzin' => $jumlahIzin, 'jumlahSakit' => $jumlahSakit]);
     }
     // Dashboard guru
     public function dashboardGuru()
@@ -85,20 +110,20 @@ class LoginController extends Controller
         // Konversi menit ke jam dengan koma (misal 510 menit = 8.5 jam)
         $totalJamKerja = round($totalMenitKerja / 60, 2);
 
-       // Data untuk pie chart
-    $absensiData = Absensi::where('user_id', $user->id)
-        ->whereIn('type', ['masuk', 'izin', 'sakit'])
-        ->selectRaw('type, COUNT(*) as count')
-        ->groupBy('type')
-        ->get()
-        ->pluck('count', 'type')
-        ->toArray();
+        // Data untuk pie chart
+        $absensiData = Absensi::where('user_id', $user->id)
+            ->whereIn('type', ['masuk', 'izin', 'sakit'])
+            ->selectRaw('type, COUNT(*) as count')
+            ->groupBy('type')
+            ->get()
+            ->pluck('count', 'type')
+            ->toArray();
 
-    $data = [
-        'masuk' => $absensiData['masuk'] ?? 0,
-        'izin' => $absensiData['izin'] ?? 0,
-        'sakit' => $absensiData['sakit'] ?? 0,
-    ];
+        $data = [
+            'masuk' => $absensiData['masuk'] ?? 0,
+            'izin' => $absensiData['izin'] ?? 0,
+            'sakit' => $absensiData['sakit'] ?? 0,
+        ];
 
         return view('dashboard-guru', [
             'username' => $user->name,
