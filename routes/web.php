@@ -8,6 +8,10 @@ use App\Http\Controllers\KelolaTransaksi;
 use App\Http\Controllers\AturAbsen;
 use App\Http\Controllers\Profil;
 
+use App\Http\Controllers\SitemapController;
+
+Route::get('/sitemap.xml', [SitemapController::class, 'generate']);
+
 Route::get('/', [App\Http\Controllers\LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [App\Http\Controllers\LoginController::class, 'login'])->name('login.post');
 Route::post('/logout', [App\Http\Controllers\LoginController::class, 'logout'])->name('logout');
