@@ -33,7 +33,7 @@ class ManageUser extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|confirmed',
             'role' => 'required|string|in:kepala sekolah,guru,murid', // Diubah dari 'siswa' ke 'murid'
         ]);
 
@@ -56,7 +56,7 @@ class ManageUser extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,username,' . $request->id,
-            'password' => 'nullable|string|min:8|confirmed', // Password dibuat nullable agar tidak wajib diupdate
+            'password' => 'nullable|string|confirmed',
             'role' => 'required|string|in:kepala sekolah,guru,murid', // Diubah dari 'siswa' ke 'murid'
         ]);
 
